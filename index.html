@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="utf-8" />
-	<meta content="width=device-width, intial-scale=1.0" name="viewport" />
+	<meta content="width=device-width, initial-scale=1.0" name="viewport" />
 	<meta content="IE=Edge" http-equiv="X-UA-Compatible" />
 	<meta content="An application that allows you to play a quiz" name="description" />
 	<meta content="R. Wood" name="author" />
@@ -19,13 +19,15 @@
 
 	<main>
 		<section class="main-container">
-			<form>
+			<form class="question-form">
 				<fieldset>
-					<label for="question-1">What word used in a <i>Monty Python</i> sketch came to be used very frequently in internet jargon?</label><br />
-					<input type="radio" name="answer" value="troll" />Troll<br />
-					<input type="radio" name="answer" value="newb" />Newb<br />
-					<input type="radio" name="answer" value="spam" />Spam<br />
-					<input type="radio" name="answer" value="flame" />Flame<br />
+					<label for="question-1" id="label">What word used in a <i>Monty Python</i> sketch came to be used very frequently in internet jargon?</label><br />
+					<div class="input-group">
+						<input type="radio" name="answer" value="troll" />Troll<br />
+						<input type="radio" name="answer" value="newb" />Newb<br />
+						<input type="radio" name="answer" value="spam" />Spam<br />
+						<input type="radio" name="answer" value="flame" />Flame<br />
+					</div>
 				</fieldset>
 				<button class="submit-btn" type="submit">Submit Answer</button>
 			</form>

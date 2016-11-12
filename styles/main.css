@@ -1,0 +1,42 @@
+.current-question,
+.score {
+	padding-top: 30px;
+	text-align: center;
+}
+
+.main-container {
+	width: 70%;
+	margin: 0 auto;
+}
+
+.question-form {
+	padding: 50px 0;
+}
+
+fieldset {
+	padding: 30px 50px;
+	line-height: 20px;
+}
+
+.submit-btn {
+	margin: 20px auto;
+	float: right;
+	padding: 10px;
+}
+
+.submit-btn:hover {
+	background-color: red;
+}
+
+.submit-btn:active {
+	background-color: red;
+	padding: 12px;
+}
+
+#label {
+	font-size: 20px;
+}
+
+.input-group {
+	margin-top: 20px;
+}
