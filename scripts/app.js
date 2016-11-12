@@ -31,6 +31,43 @@ var state = {
 	final: 'final score'
 };
 
+var questionTemplate = (
+	'<fieldset class=".js-question-field">'
+		+'<label for="question" id="label"></label><br />'
+		+ '<div class="input-group">'
+		+ '</div>'
+	+ '</fieldset>'
+	);
+
+var answerTemplate = ('<input type="radio" name="answer" id="question" value="" /><br />');
+
+function getAnswers (state, questionIndex) {
+	return state.questions[questionIndex].a;
+}
+
+function getQuestion(state, questionIndex) {
+	return state.questions[questionIndex].q;
+}
+
+function displayAnswers(state, questionIndex, answerTemplate) {
+	var answerArr = getAnswers(state, questionIndex);
+
+	answerArr.forEach(function(answer) {
+		return  ;
+	});
+}
+
+function displayQuestion(question, questionTemplate, label) {
+	var element = $(questionTemplate);
+	element.find(label).text(question);
+	return element;
+} 
+
+function renderQuestion(questionIndex, label, form) {
+	var question = getQuestion(state, questionIndex);
+	var questionDisplay = displayQuestion(question, questionTemplate, label);
+	form.html(questionDisplay);
+}
 
 function handleSubmit(form) {
 	form.submit(function(e) {
@@ -43,8 +80,10 @@ function handleSubmit(form) {
 
 function handleActions() {
 	var form = $('.question-form');
+	var label = 'label';
+	var questionField = $('.js-question-field');
 
-	handleSubmit(form);
+	renderQuestion(0, label, form);
 }
 
 $(document).ready(handleActions);
