@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta content="width=device-width, intial-scale=1.0" name="viewport" />
+	<meta content="IE=Edge" http-equiv="X-UA-Compatible" />
+	<meta content="An application that allows you to play a quiz" name="description" />
+	<meta content="R. Wood" name="author" />
+	<title>Quiz App!</title>
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css" type="text/css" ref="stylesheet" />
+	<link href="styles/main.css" type="text/css" rel="stylesheet" />
+</head>
+<body>
+	<header>
+		<section class="hidden current-question">
+			<p><span>Question 1 of 5</span></p>
+		</section>
+	</header>
+
+	<main>
+		<section class="main-container">
+			<form>
+				<fieldset>
+					<label for="question-1">What word used in a <i>Monty Python</i> sketch came to be used very frequently in internet jargon?</label><br />
+					<input type="radio" name="answer" value="troll" />Troll<br />
+					<input type="radio" name="answer" value="newb" />Newb<br />
+					<input type="radio" name="answer" value="spam" />Spam<br />
+					<input type="radio" name="answer" value="flame" />Flame<br />
+				</fieldset>
+				<button class="submit-btn" type="submit">Submit Answer</button>
+			</form>
+		</section>
+		<section class="score">
+			<p><span>Correct answers: 0; incorrect answers: 0</span></p>
+		</section>
+	</main>
+
+	<!-- SCRIPTS -->
+	<!-- Libraries -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<!-- App js files -->
+	<script src="scripts/app.js"></script>
+</body>
+</html>
