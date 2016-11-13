@@ -64,13 +64,20 @@ var state = {
 	corrAnswers: 0
 };
 
+var buttonTemplate = '<button type="submit" class="submit-btn js-submit-btn"></button>';
+
 var questionTemplate = (
-	'<fieldset class=".js-question-field">'
-		+'<label for="question" id="label"></label><br />'
-		+ '<div class="input-group">'
-		+ '</div>'
-	+ '</fieldset>'
+	'<form class="question-form js-question-form">'
+		+ '<fieldset class=".js-question-field">'
+			+'<label for="question" id="label"></label><br />'
+			+ '<div class="input-group">'
+			+ '</div>'
+		+ '</fieldset>'
+		+ buttonTemplate
+	+ '</form>'
 	);
+
+ 
 
 //State functions
 
@@ -85,11 +92,12 @@ function getQuestion(state, questionIndex) {
 //displayfunctions
 
 function displayScore(corrAnswers, arrLng) {
-	$('.js-score').find('.js-correct').text(corrAnswers);
-	$('.js-score').find('.js-incorrect').text(arrLng - corrAnswers);
+	var score = $('js.score');
+	$(score).find('.js-correct').text(corrAnswers);
+	$(score).find('.js-incorrect').text(arrLng - corrAnswers);
 }
 
-function displayAnswers(state, questionIndex, questionTemplate) {
+function displayAnswers(state, questionIndex, fieldset) {
 	var answerArr = getAnswers(state, questionIndex);
 	var lng = answerArr.length;
 	var inputGroup = '.input-group';
@@ -98,7 +106,7 @@ function displayAnswers(state, questionIndex, questionTemplate) {
 		var answer = answerArr[i];
 		var answerTemplate = '<input type="radio" name="answer" id="question' + i + '" value="' + answer + '" />' + answer + '<br />';
 		
-		questionTemplate.find(inputGroup).append(answerTemplate);
+		fieldset.find(inputGroup).append(answerTemplate);
 		displayScore(corrAnswers, lng);
 	}	
 }
@@ -109,32 +117,30 @@ function displayQuestion(question, questionTemplate, label) {
 	return element;
 } 
 
-function displayButton(button, state, currentState, form) {
-	var buttonText = state.button.currentState;
-
-	form.find(button).text(buttonText);
-}
-
-function renderQuestionTemplate(questionIndex, label, form, button) {
+function renderQuestionTemplate(questionIndex, label, container, button, form, currentState) {
+	var fieldset = $('.js-question-field');
 	var question = getQuestion(state, questionIndex);
 	var questionDisplay = displayQuestion(question, questionTemplate, label);
-	form.html(questionDisplay);
-	displayAnswers(state, questionIndex, questionDisplay);
+
+	container.html(questionDisplay);
+	displayAnswers(state, questionIndex, fieldset);
 }
 
-function renderIndex(button, state, form) {
-	var currentState = state.index;
+function renderIndex(button, state, container) {
+	var currentState = state.currentState;
+	var page = state.index;
 	var welcome = "<h1>Monty Python Quiz Game!</h1>"
-	+ '<p>' + currentState + '</p>';
-	$('.main-container').html(welcome);
-	displayButton(button, state, currentState, form);
+	+ '<p>' + page + '</p>' + buttonTemplate;
+	container.html(welcome);
+	button.html(state.button[currentState]);
+	
 }
 
-function renderState(button, state, form, label, currentState) {
+function renderState(button, state, form, label, currentState, container) {
 	if(state.currentState == 'index') {
-		renderIndex(button, state, form);
+		renderIndex(button, state, container);
 	} else if (state.currentState === 'questions') {
-		renderQuestionTemplate(questionIndex, label, form, button);
+		renderQuestionTemplate(questionIndex, label, container, button, form, currentState);
 	}
 }
 
@@ -142,7 +148,7 @@ function renderState(button, state, form, label, currentState) {
 
 function handleState(state, currentState, button, container, form, label) {
 	currentState = (typeof (state.currentState) != 'undefined') ? state.currentState : 'index';
-	renderState(button, state, form, label, currentState);
+	renderState(button, state, form, label, currentState, container);
 }
 
 function handleSubmit(form) {
