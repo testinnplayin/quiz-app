@@ -2,38 +2,66 @@
 'use strict'
 
 var state = {
-	currentState: ['index', 'questions', 'result', 'final'],
-	index: 'Start Game',
+	currentState: 'index',
+	index: 'Click below to start!',
 	questions: [
 		{
-			q : "What word used in a <i>Monty Python</i> sketch came to be used very frequently in internet jargon?",
+			q : "What word used in a Monty Python sketch came to be used very frequently in internet jargon?",
 			a : ["troll", "newb", "spam", "flamewars"],
-			answerID: 3
+			answerID: 3,
+			questionID: 1
 		},
 		{
-			q: "Which <i>Monty Python</i> movie featured the song <i>Always Look on the Bright Side of Life</i>?",
-			a: ["<i>Monty Python's Life of Brian</i>", "<i>Monty Python and the Holy Grail</i>", "<i>Monty Python's The Meaning of Life</i>", "None, it was in their TV series"],
-			answerID: 1
+			q: "Which Monty Python movie featured the song Always Look on the Bright Side of Life?",
+			a: ["Monty Python's Life of Brian<", "Monty Python and the Holy Grail", "Monty Python's The Meaning of Life", "None, it was in their TV series"],
+			answerID: 1,
+			questionID: 2
 		},
 		{
-			q: "Which 'Python' went on to produce several history series for television?",
+			q: "Which 'Python' went on to produce several history documentaries for television?",
 			a: ["Eric Idle", "John Cleese", "Terry Gillian", "Terry Jones"],
-			answerID: 4
+			answerID: 4,
+			questionID: 3
 		},
 		{
-			q: "What year was <i>Monty Python's Flying Circus</i> first shown on television in the United Kingdom?",
+			q: "What year was Monty Python's Flying Circus first shown on television in the United Kingdom?",
 			a: ["1975", "1969", "1980", "2001"],
-			answerID: 2
+			answerID: 2,
+			questionID: 4
 		},
 		{
 			q: "What other British comedy series did Python John Cleese star in?",
-			a: ["<i>Absolutely Fabulous</i>", "<i>The New Statesman</i>", "<i>Fawlty Towers</i>", "<i>Little Britain</i>"],
+			a: ["Absolutely Fabulous", "The New Statesman", "Fawlty Towers", "Little Britain"],
 			answerID: 3
 		}
 	],
 	result: 'result for single question',
+	answerFeedback: [
+		{
+			questionID: 1,
+			answer: "The correct answer was 'spam spam SPAM spam spam-spam spaaaaam'!."
+		},
+		{
+			questionID: 2,
+			answer: "The film was Monty Pyton's Life of Brian, about a very naughty, messianic boy."
+		},
+		{
+			questionID: 3,
+			answer: "The Python in question was Terry Jones, not to be confused with Terry Gillian, a movie producer. His lastest documentary is Boom Bust Boom!"
+		},
+		{
+			questionID: 4,
+			answer: "1969 was the year that changed television comedy for forever."
+		},
+		{
+			questionID: 5,
+			answer: "The other comedy series John Cleese starred in and co-wrote with his then wife was about a rather Fawlty hotel owner."
+		}
+	],
 	final: 'final score',
-	button: ['Start Game!', 'Submit!', 'Next', 'Start New Game!']
+	button: { index : 'Start Game!', questions : 'Submit!', result : 'Next', final : 'Start New Game!'},
+	currQuestion: 0,
+	corrAnswers: 0
 };
 
 var questionTemplate = (
@@ -43,9 +71,6 @@ var questionTemplate = (
 		+ '</div>'
 	+ '</fieldset>'
 	);
-
-var currQuestion = 0;
-var corrAnswers = 0;
 
 //State functions
 
@@ -84,22 +109,41 @@ function displayQuestion(question, questionTemplate, label) {
 	return element;
 } 
 
-function renderQuestionTemplate(questionIndex, label, form) {
+function displayButton(button, state, currentState, form) {
+	var buttonText = state.button.currentState;
+
+	form.find(button).text(buttonText);
+}
+
+function renderQuestionTemplate(questionIndex, label, form, button) {
 	var question = getQuestion(state, questionIndex);
 	var questionDisplay = displayQuestion(question, questionTemplate, label);
 	form.html(questionDisplay);
 	displayAnswers(state, questionIndex, questionDisplay);
 }
 
-function renderState() {
-	if(state.currentState === 'index') {
-		renderIndex();
+function renderIndex(button, state, form) {
+	var currentState = state.index;
+	var welcome = "<h1>Monty Python Quiz Game!</h1>"
+	+ '<p>' + currentState + '</p>';
+	$('.main-container').html(welcome);
+	displayButton(button, state, currentState, form);
+}
+
+function renderState(button, state, form, label, currentState) {
+	if(state.currentState == 'index') {
+		renderIndex(button, state, form);
 	} else if (state.currentState === 'questions') {
-		renderQuestionTemplate(questionIndex, label, form);
+		renderQuestionTemplate(questionIndex, label, form, button);
 	}
 }
 
 //event handlers
+
+function handleState(state, currentState, button, container, form, label) {
+	currentState = (typeof (state.currentState) != 'undefined') ? state.currentState : 'index';
+	renderState(button, state, form, label, currentState);
+}
 
 function handleSubmit(form) {
 	form.submit(function(e) {
@@ -111,11 +155,15 @@ function handleSubmit(form) {
 }
 
 function handleActions() {
-	var form = $('.question-form');
-	var label = 'label';
+	var form = $('.js-question-form');
+	var label = '#label';
 	var questionField = $('.js-question-field');
+	var button = $('.js-submit-btn');
+	var container = $('.js-main-container');
 
-	
+	var currentState = state.currentState;
+
+	handleState(state, currentState, button, container, form, label);
 }
 
 $(document).ready(handleActions);
