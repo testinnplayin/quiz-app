@@ -2,7 +2,8 @@
 'use strict'
 
 var state = {
-	index: 'start page',
+	currentState: ['index', 'questions', 'result', 'final'],
+	index: 'Start Game',
 	questions: [
 		{
 			q : "What word used in a <i>Monty Python</i> sketch came to be used very frequently in internet jargon?",
@@ -31,7 +32,8 @@ var state = {
 		}
 	],
 	result: 'result for single question',
-	final: 'final score'
+	final: 'final score',
+	button: ['Start Game!', 'Submit!', 'Next', 'Start New Game!']
 };
 
 var questionTemplate = (
@@ -42,6 +44,11 @@ var questionTemplate = (
 	+ '</fieldset>'
 	);
 
+var currQuestion = 0;
+var corrAnswers = 0;
+
+//State functions
+
 function getAnswers (state, questionIndex) {
 	return state.questions[questionIndex].a;
 }
@@ -50,17 +57,25 @@ function getQuestion(state, questionIndex) {
 	return state.questions[questionIndex].q;
 }
 
+//displayfunctions
+
+function displayScore(corrAnswers, arrLng) {
+	$('.js-score').find('.js-correct').text(corrAnswers);
+	$('.js-score').find('.js-incorrect').text(arrLng - corrAnswers);
+}
+
 function displayAnswers(state, questionIndex, questionTemplate) {
 	var answerArr = getAnswers(state, questionIndex);
 	var lng = answerArr.length;
+	var inputGroup = '.input-group';
 
 	for (var i = 0; i < lng; i++) {
 		var answer = answerArr[i];
 		var answerTemplate = '<input type="radio" name="answer" id="question' + i + '" value="' + answer + '" />' + answer + '<br />';
 		
-		questionTemplate.find('.input-group').append(answerTemplate);
-	}
-	
+		questionTemplate.find(inputGroup).append(answerTemplate);
+		displayScore(corrAnswers, lng);
+	}	
 }
 
 function displayQuestion(question, questionTemplate, label) {
@@ -69,12 +84,22 @@ function displayQuestion(question, questionTemplate, label) {
 	return element;
 } 
 
-function renderQuestion(questionIndex, label, form) {
+function renderQuestionTemplate(questionIndex, label, form) {
 	var question = getQuestion(state, questionIndex);
 	var questionDisplay = displayQuestion(question, questionTemplate, label);
 	form.html(questionDisplay);
 	displayAnswers(state, questionIndex, questionDisplay);
 }
+
+function renderState() {
+	if(state.currentState === 'index') {
+		renderIndex();
+	} else if (state.currentState === 'questions') {
+		renderQuestionTemplate(questionIndex, label, form);
+	}
+}
+
+//event handlers
 
 function handleSubmit(form) {
 	form.submit(function(e) {
@@ -90,7 +115,7 @@ function handleActions() {
 	var label = 'label';
 	var questionField = $('.js-question-field');
 
-	var question = renderQuestion(0, label, form);
+	
 }
 
 $(document).ready(handleActions);
