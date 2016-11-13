@@ -1,30 +1,33 @@
+
+'use strict'
+
 var state = {
 	index: 'start page',
 	questions: [
 		{
 			q : "What word used in a <i>Monty Python</i> sketch came to be used very frequently in internet jargon?",
 			a : ["troll", "newb", "spam", "flamewars"],
-			questionID: 1
+			answerID: 3
 		},
 		{
 			q: "Which <i>Monty Python</i> movie featured the song <i>Always Look on the Bright Side of Life</i>?",
 			a: ["<i>Monty Python's Life of Brian</i>", "<i>Monty Python and the Holy Grail</i>", "<i>Monty Python's The Meaning of Life</i>", "None, it was in their TV series"],
-			questionID: 2
+			answerID: 1
 		},
 		{
 			q: "Which 'Python' went on to produce several history series for television?",
 			a: ["Eric Idle", "John Cleese", "Terry Gillian", "Terry Jones"],
-			questionID: 3
+			answerID: 4
 		},
 		{
 			q: "What year was <i>Monty Python's Flying Circus</i> first shown on television in the United Kingdom?",
 			a: ["1975", "1969", "1980", "2001"],
-			questionID: 4
+			answerID: 2
 		},
 		{
 			q: "What other British comedy series did Python John Cleese star in?",
 			a: ["<i>Absolutely Fabulous</i>", "<i>The New Statesman</i>", "<i>Fawlty Towers</i>", "<i>Little Britain</i>"],
-			questionID: 5
+			answerID: 3
 		}
 	],
 	result: 'result for single question',
@@ -39,8 +42,6 @@ var questionTemplate = (
 	+ '</fieldset>'
 	);
 
-var answerTemplate = ('<input type="radio" name="answer" id="question" value="" /><br />');
-
 function getAnswers (state, questionIndex) {
 	return state.questions[questionIndex].a;
 }
@@ -49,12 +50,17 @@ function getQuestion(state, questionIndex) {
 	return state.questions[questionIndex].q;
 }
 
-function displayAnswers(state, questionIndex, answerTemplate) {
+function displayAnswers(state, questionIndex, questionTemplate) {
 	var answerArr = getAnswers(state, questionIndex);
+	var lng = answerArr.length;
 
-	answerArr.forEach(function(answer) {
-		return  ;
-	});
+	for (var i = 0; i < lng; i++) {
+		var answer = answerArr[i];
+		var answerTemplate = '<input type="radio" name="answer" id="question' + i + '" value="' + answer + '" />' + answer + '<br />';
+		
+		questionTemplate.find('.input-group').append(answerTemplate);
+	}
+	
 }
 
 function displayQuestion(question, questionTemplate, label) {
@@ -67,6 +73,7 @@ function renderQuestion(questionIndex, label, form) {
 	var question = getQuestion(state, questionIndex);
 	var questionDisplay = displayQuestion(question, questionTemplate, label);
 	form.html(questionDisplay);
+	displayAnswers(state, questionIndex, questionDisplay);
 }
 
 function handleSubmit(form) {
@@ -83,7 +90,7 @@ function handleActions() {
 	var label = 'label';
 	var questionField = $('.js-question-field');
 
-	renderQuestion(0, label, form);
+	var question = renderQuestion(0, label, form);
 }
 
 $(document).ready(handleActions);
