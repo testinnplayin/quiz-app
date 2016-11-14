@@ -67,7 +67,7 @@ var questionTemplate = (
 	'<form class="question-form js-question-form">'
 		+ '<fieldset class="js-question-field">'
 			+'<label for="question" id="label"></label><br />'
-			+ '<div class="input-group">'
+			+ '<div class="input-group js-input-group">'
 			+ '</div>'
 		+ '</fieldset>'
 	+ '</form>'
@@ -113,7 +113,7 @@ function displayAnswers(state, questionIndex, buttonText) {
 
 	for (var i = 0; i < lng; i++) {
 		var answer = answerArr[i];
-		var answerTemplate = '<input type="radio" name="answer" id="' + (i + 1) + '" value="' + answer + '" required />' + answer + '<br />';
+		var answerTemplate = '<input type="radio" name="answer" id="' + (i + 1) + '" value="' + (i + 1) + '" required />' + answer + '<br />';
 
 		$('.js-question-form').find(inputGroup).append(answerTemplate);
 	}
@@ -179,7 +179,7 @@ function renderState(buttonText, label, currentState, container, questionID, cur
 	} else if (currentState === 'questions') {
 		renderQuestionTemplate(questionID, label, container, buttonText, currentState, currQuestion, state, corrAnswersTotal);//(1, label, container, 'Submit!', 'questions', 0, state, 0)
 	} else if (currentState === 'result') {
-		renderResultTemplate(buttonText, state, container, questionID, currentState, corrAnswersTotal); //('Next', state, container, 1)
+		renderResultTemplate(buttonText, state, container, questionID, currentState, corrAnswersTotal); //('Next', state, container, 1, 'result', 0)
 	} else if (currentState === 'final') {
 		renderFinalTemplate(buttonText, state, container, corrAnswersTotal, currentState);
 	}
@@ -200,7 +200,7 @@ function processResult(userAnswer, currQuestion, state, corrAnswersTotal) {
 
 //event handlers
 
-function handler(currentState, buttonText, label, container, questionID, currQuestion, corrAnswersTotal, renderer, stateStr) {
+function handler(currentState, buttonText, label, container, questionID, currQuestion, corrAnswersTotal, renderer) {
 	buttonText = state.button[currentState];
 	renderer(buttonText, label, currentState, container, questionID, currQuestion, corrAnswersTotal);
 }
@@ -212,14 +212,6 @@ function handleInitialState(state, container, label) {
 	var currQuestion = state.currQuestion;
 
 	renderState(buttonText, label, currentState, container, questionID, currQuestion);
-}
-
-function handleUserChoice(currQuestion, container) {
-	container.on('click', "input[name='answer']", function() {
-		var userChoice = $('input[name="answer"]:radio:checked').attr('id');
-
-		return userChoice;
-	});
 }
 
 function handleSubmit(submitButton, currQuestion, state, label, container) { //currQuestion = 0
@@ -239,11 +231,10 @@ function handleSubmit(submitButton, currQuestion, state, label, container) { //c
 			handler(currentState, buttonText, label, container, questionID, currQuestion, corrAnswersTotal, renderState);
 			currQuestion += 1;
 		} else if (currentState === "questions") {
-			currentState = "result"
-			var userChoice = handleUserChoice(currQuestion, container);
-			console.log(userChoice);
-			processResult(userChoice, currQuestion, state, corrAnswersTotal);
-			handler(currentState, buttonText, label, container, questionID, currQuestion, corrAnswersTotal, renderState);
+			currentState = "result";
+			var userChoice = $('.js-input-group input[name="answer"]:radio:checked').val();
+			var newTotal = processResult(userChoice, currQuestion, state, corrAnswersTotal);
+			handler(currentState, buttonText, label, container, questionID, currQuestion, newTotal, renderState);
 		} else {
 			currentState = "final";
 			handler(currentState, buttonText, label, container, questionID, currQuestion, corrAnswersTotal, renderState);
