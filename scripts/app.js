@@ -32,7 +32,8 @@ var state = {
 		{
 			q: "What other British comedy series did Python John Cleese star in?",
 			a: ["Absolutely Fabulous", "The New Statesman", "Fawlty Towers", "Little Britain"],
-			answerID: 3
+			answerID: 3,
+			questionID: 5
 		}
 	],
 	result: 'result for single question',
@@ -86,7 +87,7 @@ function getQuestion(state, questionIndex) {
 	return state.questions[questionIndex].q;
 }
 
-//displayfunctions
+//display functions
 
 function displayScore(corrAnswers, arrLng) {
 	var score = $('js.score');
@@ -121,13 +122,13 @@ function displayButton(buttonText) {
 	return buttonTemplate;
 }
 
-function renderQuestionTemplate(questionIndex, label, container, button, currentState) {
+function renderQuestionTemplate(questionID, label, container, buttonText, form, currentState, currQuestion) {
 	var fieldset = $('.js-question-field');
-	var question = getQuestion(state, questionIndex);
+	var question = getQuestion(state, currQuestion);//(state, 0)
 	var questionDisplay = displayQuestion(question, questionTemplate, label);
 
 	container.html(questionDisplay);
-	displayAnswers(state, questionIndex, fieldset);
+	displayAnswers(state, currQuestion, fieldset);
 }
 
 function renderIndex(buttonText, state, container) {
@@ -139,11 +140,11 @@ function renderIndex(buttonText, state, container) {
 	container.html(welcome);
 }
 
-function renderState(buttonText, state, label, currentState, container) {
+function renderState(buttonText, label, currentState, container, questionID, form, currQuestion) {
 	if(state.currentState === 'index') {
 		renderIndex(buttonText, state, container);
 	} else if (state.currentState === 'questions') {
-		renderQuestionTemplate(questionIndex, label, container, button, form, currentState);
+		renderQuestionTemplate(questionID, label, container, buttonText, form, currentState, currQuestion);//(1, label, container, 'Submit!', form, 'questions', 0)
 	}
 }
 
@@ -153,14 +154,34 @@ function handleInitialState(state, container, label) {
 	var currentState = state.currentState; //index
 	var buttonText = state.button[currentState]; //value at index is 'Start Game!'
 
-	renderState(buttonText, state, label, currentState, container);
+	renderState(buttonText, label, currentState, container);
 }
 
-function handleSubmit(form) {
+function handleGameStart(form, currQuestion, label, container, state, submitButton) {
+	container.on('click', submitButton, function(e) {
+		e.preventDefault();
+
+		currQuestion; //currQuestion is 0
+		state.currentState = 'questions';
+
+		var currentState = state.currentState;
+		var questionID = state.questions[currQuestion].questionID;
+		var buttonText = state.button[currentState];
+
+		renderState(buttonText, label, currentState, container, questionID, form, currQuestion); //('Submit!', label, 'questions', container, 1, form, 0)
+	});
+}
+
+function handleSubmit(form, currQuestion, label, container, state) { //currQuestion = 0
+
 	form.submit(function(e) {
 		e.preventDefault();
 		e.stopPropagation();
+		
+		currQuestion += 1;
+		
 
+		
 
 	});
 }
@@ -170,8 +191,12 @@ function handleActions() {
 	var label = '#label';
 	var questionField = $('.js-question-field');
 	var container = $('.js-main-container');
+	var submitButton = '.js-submit-btn';
+	var currQuestion = state.currQuestion;
 
 	handleInitialState(state, container, label);
+	handleGameStart(form, currQuestion, label, container, state, submitButton);
+	handleSubmit(form, currQuestion, label, container, state);
 
 }
 
