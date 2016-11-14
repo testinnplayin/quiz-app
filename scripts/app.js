@@ -89,12 +89,12 @@ function getQuestion(state, questionIndex) {
 
 //display functions
 
-function displayScore(corrAnswers, arrLng) {
-	var score = $('.js-score');
+function displayScore(element, totalVal, currVal) {
+	
 
-	score.find('.js-correct').text(corrAnswers);
-	score.find('.js-incorrect').text(arrLng - corrAnswers);
-	score.removeClass('hidden');
+	element.find('.span-1').text(currVal);
+	element.find('.span-2').text(totalVal);
+	element.removeClass('hidden');
 }
 
 function displayAnswers(state, questionIndex, buttonText) {
@@ -105,7 +105,7 @@ function displayAnswers(state, questionIndex, buttonText) {
 
 	for (var i = 0; i < lng; i++) {
 		var answer = answerArr[i];
-		var answerTemplate = '<input type="radio" name="answer" id="question' + i + '" value="' + answer + '" />' + answer + '<br />';
+		var answerTemplate = '<input type="radio" name="answer" id="answer' + i + '" value="' + answer + '" required />' + answer + '<br />';
 		console.log(answerTemplate);
 		$('.js-question-form').find(inputGroup).append(answerTemplate);
 	}
@@ -127,13 +127,14 @@ function renderQuestionTemplate(questionID, label, container, buttonText, curren
 	var question = getQuestion(state, currQuestion);//(state, 0)
 	var questionDisplay = displayQuestion(question, questionTemplate, label);
 	var corrAnswers = state.corrAnswers;
-	var lng = state.questions.length;
-
-	console.log(lng);
+	var quesNum = state.questions.length;
+	var score = $('.js-score');
+	var questionTicker = $('.js-current-ticker');
 
 	container.html(questionDisplay);
 	displayAnswers(state, currQuestion, buttonText);
-	displayScore(corrAnswers, lng);
+	displayScore(score, quesNum - corrAnswers, corrAnswers);
+	displayScore(questionTicker, quesNum, questionID)
 }
 
 function renderIndex(buttonText, state, container) {
@@ -145,51 +146,72 @@ function renderIndex(buttonText, state, container) {
 	container.html(welcome);
 }
 
-function renderState(buttonText, label, currentState, container, questionID, currQuestion, form) {
-	if(state.currentState === 'index') {
+function renderState(buttonText, label, currentState, container, questionID, currQuestion) {
+	if(currentState === 'index') {
 		renderIndex(buttonText, state, container);
-	} else if (state.currentState === 'questions') {
-		renderQuestionTemplate(questionID, label, container, buttonText, currentState, currQuestion, state);//(1, label, container, 'Submit!', 'questions', 0, form)
+	} else if (currentState === 'questions') {
+		renderQuestionTemplate(questionID, label, container, buttonText, currentState, currQuestion, state);//(1, label, container, 'Submit!', 'questions', 0)
 	}
+}
+
+//logic functions
+
+function processResult(answer, questionIndex, state) {
+	var correctAnswer = state.questions[currQuestion].answerID;
+	
 }
 
 //event handlers
 
-function handleInitialState(state, container, label, form) {
+function handleInitialState(state, container, label) {
 	var currentState = state.currentState; //index
 	var buttonText = state.button[currentState]; //value at index is 'Start Game!'
 	var questionID = 0;
 	var currQuestion = 0;
 
-	renderState(buttonText, label, currentState, container, questionID, currQuestion, form);
+	renderState(buttonText, label, currentState, container, questionID, currQuestion);
 }
 
-function handleGameStart(currQuestion, label, container, state, submitButton, form) {
+//function handleGameStart(currQuestion, label, container, state, submitButton) {
+//	container.on('click', submitButton, function(e) {
+//		e.preventDefault();
+//
+//		currQuestion; //currQuestion is 0
+//		state.currentState = 'questions';
+//
+//		var currentState = state.currentState;
+//		var questionID = state.questions[currQuestion].questionID;
+//		var buttonText = state.button[currentState];
+//
+//		renderState(buttonText, label, currentState, container, questionID, currQuestion); //('Submit!', label, 'questions', container, 1, 0)
+//	});
+//}
+
+function handleSubmit(submitButton, currQuestion, state, label, container) { //currQuestion = 0
+
 	container.on('click', submitButton, function(e) {
 		e.preventDefault();
-
-		currQuestion; //currQuestion is 0
-		state.currentState = 'questions';
 
 		var currentState = state.currentState;
 		var questionID = state.questions[currQuestion].questionID;
 		var buttonText = state.button[currentState];
 
-		renderState(buttonText, label, currentState, container, questionID, currQuestion, form); //('Submit!', label, 'questions', container, 1, 0, form)
-	});
-}
+		currQuestion;
+		console.log(currentState);
 
-function handleSubmit(form, currQuestion, label, container, state) { //currQuestion = 0
-
-	form.submit(function(e) {
-		e.preventDefault();
-		e.stopPropagation();
+		if (currentState === "index") {
+			currentState = "questions";
+			renderState(buttonText, label, currentState, container, questionID, currQuestion);
+		}
 		
-		currQuestion += 1;
 		
 
-		
 
+		//var userAnswer = $('input[name="answer"]:radio:checked');
+		//alert(userAnswer);
+		//processResult(userAnswer, currQuestion, state);
+		
+		
 	});
 }
 
@@ -202,8 +224,8 @@ function handleActions() {
 	var currQuestion = state.currQuestion;
 
 	handleInitialState(state, container, label, form);
-	handleGameStart(currQuestion, label, container, state, submitButton, form);
-	handleSubmit(form, currQuestion, label, container, state);
+	//handleGameStart(currQuestion, label, container, state, submitButton);
+	handleSubmit(submitButton, currQuestion, state, label, container);
 
 }
 
