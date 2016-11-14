@@ -179,11 +179,11 @@ function renderState(buttonText, label, currentState, container, questionID, cur
 	if(currentState === 'index') {
 		renderIndex(buttonText, state, container);
 	} else if (currentState === 'questions') {
-		renderQuestionTemplate(questionID, label, container, buttonText, currentState, currQuestion, state, corrAnswersTotal);//(1, label, container, 'Submit!', 'questions', 0)
+		renderQuestionTemplate(questionID, label, container, buttonText, currentState, currQuestion, state, corrAnswersTotal);//(1, label, container, 'Submit!', 'questions', 0, state, 0)
 	} else if (currentState === 'result') {
-		renderResultTemplate(buttonText, state, container, questionID);
+		renderResultTemplate(buttonText, state, container, questionID); //('Next', state, container, 1)
 	} else if (currentState === 'final') {
-		renderFinalTemplate(buttonText, state, container, corrAnswersTotal)
+		renderFinalTemplate(buttonText, state, container, corrAnswersTotal);
 	}
 }
 
@@ -202,6 +202,12 @@ function processResult(userAnswer, currQuestion, state, corrAnswersTotal) {
 
 //event handlers
 
+function handler(currentState, buttonText, label, container, questionID, currQuestion, corrAnswersTotal, renderer, stateStr) {
+	currentState = stateStr;
+	buttonText = state.button[currentState];
+	renderer(buttonText, label, currentState, container, questionID, currQuestion, corrAnswersTotal);
+}
+
 function handleInitialState(state, container, label) {
 	var currentState = state.currentState; //index
 	var buttonText = state.button[currentState]; //value at index is 'Start Game!'
@@ -211,8 +217,8 @@ function handleInitialState(state, container, label) {
 	renderState(buttonText, label, currentState, container, questionID, currQuestion);
 }
 
-function handleUserChoice(currQuestion, submitButton) {
-	$(submitButton).on('click', "input[name='answer']", function() {
+function handleUserChoice(currQuestion, container) {
+	container.on('click', "input[name='answer']", function() {
 		var userChoice = $('input[name="answer"]:radio:checked').attr('id');
 
 		return userChoice;
@@ -232,21 +238,15 @@ function handleSubmit(submitButton, currQuestion, state, label, container) { //c
 		currQuestion;
 
 		if ((currentState === "index") || (currentState === "result" && currQuestion < 5)) {
-			currentState = "questions";
-			buttonText = state.button[currentState];
-			renderState(buttonText, label, currentState, container, questionID, currQuestion, corrAnswersTotal);
+			handler(currentState, buttonText, label, container, questionID, currQuestion, corrAnswersTotal, renderState, 'questions');
 			currQuestion += 1;
 		} else if (currentState === "questions") {
-			var userChoice = handleUserChoice(currQuestion, submitButton);
+			var userChoice = handleUserChoice(currQuestion, container);
 			console.log(userChoice);
 			processResult(userChoice, currQuestion, state, corrAnswersTotal);
-			currentState = "result";
-			buttonText = state.button[currentState];
-			renderState(buttonText, label, currentState, container, questionID, currQuestion, corrAnswersTotal);
+			handler(currentState, buttonText, label, container, questionID, currQuestion, corrAnswersTotal, renderState, 'result');
 		} else {
-			currentState="final";
-			buttonText = state.button[currentState];
-			renderState(buttonText, label, currentState, container, questionID, currQuestion, corrAnswersTotal);
+			handler(currentState, buttonText, label, container, questionID, currQuestion, corrAnswersTotal, renderState, 'final');
 		}
 			
 	});
@@ -254,7 +254,6 @@ function handleSubmit(submitButton, currQuestion, state, label, container) { //c
 
 function handleActions() {
 	var label = '#label';
-	var questionField = $('.js-question-field');
 	var container = $('.js-main-container');
 	var submitButton = '.js-submit-btn';
 	var currQuestion = state.currQuestion;
