@@ -3,7 +3,7 @@
 
 var state = {
 	currentState: 'index',
-	index: 'Click below to start!',
+	pages: { index : 'Click below to start!', result : 'Here is the result:', final : 'Final Score' },
 	questions: [
 		{
 			q : "What word used in a Monty Python sketch came to be used very frequently in internet jargon?",
@@ -36,7 +36,6 @@ var state = {
 			questionID: 5
 		}
 	],
-	result: 'Here is the result:',
 	answerFeedback: [
 		{
 			questionID: 1,
@@ -59,7 +58,6 @@ var state = {
 			answer: "The other comedy series John Cleese starred in and co-wrote with his then wife was about a rather Fawlty hotel owner."
 		}
 	],
-	final: 'final score',
 	button: { index : 'Start Game!', questions : 'Submit!', result : 'Next', final : 'Start New Game!'},
 	currQuestion: 0,
 	corrAnswersTotal: 0
@@ -133,8 +131,8 @@ function displayButton(buttonText) {
 	return buttonTemplate;
 }
 
-function renderResultTemplate(buttonText, state, container, questionID, corrAnswersTotal) {
-	var page = state.result;
+function renderResultTemplate(buttonText, state, container, questionID, currentState, corrAnswersTotal) {
+	var page = state.pages[currentState];
 	var button = displayButton(buttonText);
 	var answer = getAnswerFeedback(state, questionID);
 	var quesNum = state.questions.length;
@@ -160,8 +158,8 @@ function renderQuestionTemplate(questionID, label, container, buttonText, curren
 	displayScore(questionTicker, quesNum, questionID)
 }
 
-function renderIndex(buttonText, state, container) {
-	var page = state.index;
+function renderIndex(buttonText, state, container, currentState) {
+	var page = state.pages[currentState];
 	var button = displayButton(buttonText);
 	var welcome = "<h1>Monty Python Quiz Game!</h1>"
 	+ '<p>' + page + '</p>' + button;
@@ -169,21 +167,21 @@ function renderIndex(buttonText, state, container) {
 	container.html(welcome);
 }
 
-function renderFinalTemplate(buttonText, state, container, corrAnswersTotal) {
-	var page = state.final;
+function renderFinalTemplate(buttonText, state, container, corrAnswersTotal, currentState) {
+	var page = state.pages[currentState];
 	var button = displayButton(buttonText);
 	var bye = ("<p>Your final score was: </p><span class='span-1'></span> out of <span class='span-2'></span>");
 }
 
 function renderState(buttonText, label, currentState, container, questionID, currQuestion, corrAnswersTotal) {
 	if(currentState === 'index') {
-		renderIndex(buttonText, state, container);
+		renderIndex(buttonText, state, container, currentState);
 	} else if (currentState === 'questions') {
 		renderQuestionTemplate(questionID, label, container, buttonText, currentState, currQuestion, state, corrAnswersTotal);//(1, label, container, 'Submit!', 'questions', 0, state, 0)
 	} else if (currentState === 'result') {
-		renderResultTemplate(buttonText, state, container, questionID); //('Next', state, container, 1)
+		renderResultTemplate(buttonText, state, container, questionID, currentState, corrAnswersTotal); //('Next', state, container, 1)
 	} else if (currentState === 'final') {
-		renderFinalTemplate(buttonText, state, container, corrAnswersTotal);
+		renderFinalTemplate(buttonText, state, container, corrAnswersTotal, currentState);
 	}
 }
 
@@ -203,7 +201,6 @@ function processResult(userAnswer, currQuestion, state, corrAnswersTotal) {
 //event handlers
 
 function handler(currentState, buttonText, label, container, questionID, currQuestion, corrAnswersTotal, renderer, stateStr) {
-	currentState = stateStr;
 	buttonText = state.button[currentState];
 	renderer(buttonText, label, currentState, container, questionID, currQuestion, corrAnswersTotal);
 }
@@ -238,15 +235,18 @@ function handleSubmit(submitButton, currQuestion, state, label, container) { //c
 		currQuestion;
 
 		if ((currentState === "index") || (currentState === "result" && currQuestion < 5)) {
-			handler(currentState, buttonText, label, container, questionID, currQuestion, corrAnswersTotal, renderState, 'questions');
+			currentState = "questions";
+			handler(currentState, buttonText, label, container, questionID, currQuestion, corrAnswersTotal, renderState);
 			currQuestion += 1;
 		} else if (currentState === "questions") {
+			currentState = "result"
 			var userChoice = handleUserChoice(currQuestion, container);
 			console.log(userChoice);
 			processResult(userChoice, currQuestion, state, corrAnswersTotal);
-			handler(currentState, buttonText, label, container, questionID, currQuestion, corrAnswersTotal, renderState, 'result');
+			handler(currentState, buttonText, label, container, questionID, currQuestion, corrAnswersTotal, renderState);
 		} else {
-			handler(currentState, buttonText, label, container, questionID, currQuestion, corrAnswersTotal, renderState, 'final');
+			currentState = "final";
+			handler(currentState, buttonText, label, container, questionID, currQuestion, corrAnswersTotal, renderState);
 		}
 			
 	});
