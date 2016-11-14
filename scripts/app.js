@@ -101,7 +101,6 @@ function displayAnswers(state, questionIndex, buttonText) {
 	var answerArr = getAnswers(state, questionIndex);
 	var lng = answerArr.length;
 	var inputGroup = '.input-group';
-	var corrAnswers = state.corrAnswers;
 	var button = displayButton(buttonText);
 
 	for (var i = 0; i < lng; i++) {
@@ -110,9 +109,7 @@ function displayAnswers(state, questionIndex, buttonText) {
 		console.log(answerTemplate);
 		$('.js-question-form').find(inputGroup).append(answerTemplate);
 	}
-	
 	$('.js-question-form').find(inputGroup).append(button);
-	displayScore(corrAnswers, lng);
 }
 
 function displayQuestion(question, questionTemplate, label) {
@@ -126,13 +123,17 @@ function displayButton(buttonText) {
 	return buttonTemplate;
 }
 
-function renderQuestionTemplate(questionID, label, container, buttonText, currentState, currQuestion, form) {
-	var fieldset = $('.js-question-field');
+function renderQuestionTemplate(questionID, label, container, buttonText, currentState, currQuestion, state) {
 	var question = getQuestion(state, currQuestion);//(state, 0)
 	var questionDisplay = displayQuestion(question, questionTemplate, label);
+	var corrAnswers = state.corrAnswers;
+	var lng = state.questions.length;
+
+	console.log(lng);
 
 	container.html(questionDisplay);
 	displayAnswers(state, currQuestion, buttonText);
+	displayScore(corrAnswers, lng);
 }
 
 function renderIndex(buttonText, state, container) {
@@ -148,7 +149,7 @@ function renderState(buttonText, label, currentState, container, questionID, cur
 	if(state.currentState === 'index') {
 		renderIndex(buttonText, state, container);
 	} else if (state.currentState === 'questions') {
-		renderQuestionTemplate(questionID, label, container, buttonText, currentState, currQuestion, form);//(1, label, container, 'Submit!', 'questions', 0, form)
+		renderQuestionTemplate(questionID, label, container, buttonText, currentState, currQuestion, state);//(1, label, container, 'Submit!', 'questions', 0, form)
 	}
 }
 
