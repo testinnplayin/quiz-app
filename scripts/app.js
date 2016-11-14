@@ -73,9 +73,9 @@ var questionTemplate = (
 	+ '</form>'
 	);
 
- 
 
-//State functions
+
+//STATE FUNCTIONS
 
 function getAnswers (state, questionIndex) {
 	return state.questions[questionIndex].a;
@@ -95,11 +95,13 @@ function getAnswerID(state, questionIndex) {
 	return state.questions[questionIndex].answerID;
 }
 
-//display functions
+
+
+//DISPLAY FUNCTIONS
+
+//Element display functions
 
 function displayScore(element, totalVal, currVal) {
-	
-
 	element.find('.span-1').text(currVal);
 	element.find('.span-2').text(totalVal);
 	element.removeClass('hidden');
@@ -131,6 +133,8 @@ function displayButton(buttonText) {
 	return buttonTemplate;
 }
 
+//Template display functions
+
 function renderResultTemplate(buttonText, state, container, questionID, currentState, corrAnswersTotal) {
 	var page = state.pages[currentState];
 	var button = displayButton(buttonText);
@@ -153,12 +157,15 @@ function renderQuestionTemplate(questionID, label, container, buttonText, curren
 	var questionTicker = $('.js-current-ticker');
 
 	container.html(questionDisplay);
+
 	displayAnswers(state, currQuestion, buttonText);
 	displayScore(score, quesNum - corrAnswers, corrAnswers);
-	displayScore(questionTicker, quesNum, questionID)
+	displayScore(questionTicker, quesNum, questionID);
 }
 
-function renderIndex(buttonText, state, container, currentState) {
+//Render view functions
+
+function renderIndexView(buttonText, state, container, currentState) {
 	var page = state.pages[currentState];
 	var button = displayButton(buttonText);
 	var welcome = "<h1>Monty Python Quiz Game!</h1>"
@@ -175,7 +182,7 @@ function renderFinalTemplate(buttonText, state, container, corrAnswersTotal, cur
 
 function renderState(buttonText, label, currentState, container, questionID, currQuestion, corrAnswersTotal) {
 	if(currentState === 'index') {
-		renderIndex(buttonText, state, container, currentState);
+		renderIndexView(buttonText, state, container, currentState);
 	} else if (currentState === 'questions') {
 		renderQuestionTemplate(questionID, label, container, buttonText, currentState, currQuestion, state, corrAnswersTotal);//(1, label, container, 'Submit!', 'questions', 0, state, 0)
 	} else if (currentState === 'result') {
@@ -185,7 +192,7 @@ function renderState(buttonText, label, currentState, container, questionID, cur
 	}
 }
 
-//logic functions
+//LOGIC FUNCTIONS
 
 function processResult(userAnswer, currQuestion, state, corrAnswersTotal) {
 	var correctAnswer = getAnswerID(state, currQuestion);
@@ -198,48 +205,48 @@ function processResult(userAnswer, currQuestion, state, corrAnswersTotal) {
 	
 }
 
-//event handlers
+//EVENT HANDLERS
 
 function handler(currentState, buttonText, label, container, questionID, currQuestion, corrAnswersTotal, renderer) {
 	buttonText = state.button[currentState];
 	renderer(buttonText, label, currentState, container, questionID, currQuestion, corrAnswersTotal);
 }
 
-function handleInitialState(state, container, label) {
-	var currentState = state.currentState; //index
+function handleInitialState(state, container, label, submitButton, currQuestion, currentState) { //currentState = index
 	var buttonText = state.button[currentState]; //value at index is 'Start Game!'
 	var questionID = 0;
-	var currQuestion = state.currQuestion;
 
 	renderState(buttonText, label, currentState, container, questionID, currQuestion);
 }
 
-function handleSubmit(submitButton, currQuestion, state, label, container) { //currQuestion = 0
+function handleSubmit(submitButton, currQuestion, state, label, container, currentState) {
+	$('.js-question-form').on('submit', submitButton, function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+
+		var userChoice = $('.js-input-group input[name="answer"]:radio:checked').val();
+		var newTotal = processResult(userChoice, currQuestion, state, corrAnswersTotal);
+
+		console.log(userChoice);
+		console.log(newTotal);
+
+		handler(currentState, buttonText, label, container, questionID, currQuestion, corrAnswersTotal, renderState);
+
+		return false;
+	});
+}
+
+function handleButtonClick(submitButton, currQuestion, state, label, container, currentState) { //currQuestion = 0
+	var questionID = state.questions[currQuestion].questionID;
+	var buttonText = state.button[currentState];
+	var corrAnswersTotal = state.corrAnswersTotal;
 
 	container.on('click', submitButton, function(e) {
 		e.preventDefault();
 
-		var currentState = state.currentState;
-		var questionID = state.questions[currQuestion].questionID;
-		var buttonText = state.button[currentState];
-		var corrAnswersTotal = state.corrAnswersTotal;
+		handler(currentState, buttonText, label, container, questionID, currQuestion, corrAnswersTotal, renderState);
 
-		currQuestion;
-
-		if ((currentState === "index") || (currentState === "result" && currQuestion < 5)) {
-			currentState = "questions";
-			handler(currentState, buttonText, label, container, questionID, currQuestion, corrAnswersTotal, renderState);
-			currQuestion += 1;
-		} else if (currentState === "questions") {
-			currentState = "result";
-			var userChoice = $('.js-input-group input[name="answer"]:radio:checked').val();
-			var newTotal = processResult(userChoice, currQuestion, state, corrAnswersTotal);
-			handler(currentState, buttonText, label, container, questionID, currQuestion, newTotal, renderState);
-		} else {
-			currentState = "final";
-			handler(currentState, buttonText, label, container, questionID, currQuestion, corrAnswersTotal, renderState);
-		}
-			
+		currQuestion += 1;	
 	});
 }
 
@@ -248,10 +255,22 @@ function handleActions() {
 	var container = $('.js-main-container');
 	var submitButton = '.js-submit-btn';
 	var currQuestion = state.currQuestion;
+	var currentState = state.currentState;
 
-	handleInitialState(state, container, label);
-	handleSubmit(submitButton, currQuestion, state, label, container);
+	console.log(currentState);
 
+	handleInitialState(state, container, label, submitButton, currQuestion, currentState);
+
+	if ((currentState === "index") || (currentState === "result" && currQuestion < 5)) {
+		currentState = "questions";
+		console.log(currentState);
+		handleButtonClick(submitButton, currQuestion, state, label, container, currentState);
+	} else if (currentState === "questions") {
+		currentState = "result";
+		console.log(currentState);
+		handleSubmit(submitButton, currQuestion, state, label, container, currentState);
+	}
+	
 }
 
 
