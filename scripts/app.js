@@ -91,6 +91,10 @@ function getAnswerFeedback(state, questionID) {
 	}
 }
 
+function getQuestionID(state, currQuestion) {
+	return state.questions[currQuestion].questionID;
+}
+
 function getAnswerID(state, questionIndex) {
 	return state.questions[questionIndex].answerID;
 }
@@ -166,11 +170,12 @@ function renderResultTemplate(buttonText, state, container, questionID, currentS
 	displayScore($('.js-score'), corrAnswersTotal, currQuestion - corrAnswersTotal);
 }
 
-function renderQuestionTemplate(questionID, label, container, buttonText, currentState, currQuestion, state, corrAnswers, quesNum) {
+function renderQuestionTemplate(label, container, buttonText, currentState, currQuestion, state, corrAnswers, quesNum) {
 	var question = getQuestion(state, currQuestion);//(state, 0)
 	var questionDisplay = displayQuestion(question, questionTemplate, label);
 	var score = $('.js-score');
 	var questionTicker = $('.js-current-ticker');
+	var questionID = getQuestionID(state, currQuestion);
 
 	container.html(questionDisplay);
 
@@ -194,7 +199,7 @@ function renderState(buttonText, label, currentState, container, questionID, cur
 	if(currentState === 'index') {
 		renderIndexView(buttonText, state, container, currentState);
 	} else if (currentState === 'questions') {
-		renderQuestionTemplate(questionID, label, container, buttonText, currentState, currQuestion, state, corrAnswersTotal, quesNum);//(1, label, container, 'Submit!', 'questions', 0, state, 0)
+		renderQuestionTemplate(label, container, buttonText, currentState, currQuestion, state, corrAnswersTotal, quesNum);//(1, label, container, 'Submit!', 'questions', 0, state, 0)
 	} else if (currentState === 'result') {
 		renderResultTemplate(buttonText, state, container, questionID, currentState, corrAnswersTotal, quesNum, currQuestion); //('Next', state, container, 1, 'result', 0)
 	} else if (currentState === 'final' && currQuestion === 5) {
@@ -293,7 +298,6 @@ function handleActions() {
 	var submitButton = '.js-submit-btn';
 
 	var currQuestion = state.currQuestion;
-	var questionID = state.questions[currQuestion].questionID;
 	var currentState = state.currentState;
 	var corrAnswersTotal = state.corrAnswersTotal;
 	var buttonText = state.button[currentState];
