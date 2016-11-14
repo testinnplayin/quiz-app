@@ -140,13 +140,16 @@ function renderResultTemplate(buttonText, state, container, questionID, currentS
 	var button = displayButton(buttonText);
 	var answer = getAnswerFeedback(state, questionID);
 	var quesNum = state.questions.length;
+	var questionTicker = $('.js-current-ticker');
 
 	var result = ("<p>" + page + "</p>" + "<br />" 
 		+ "<p>" + answer + "</p><br />"
 		+ "<p>You have <span class='span-1'></span> out of <span class='span-2'></span> questions correct."
 		+ button);
+
 	container.html(result);
-	displayScore(container, quesNum, corrAnswersTotal);
+
+	displayScore(questionTicker, quesNum, corrAnswersTotal);
 }
 
 function renderQuestionTemplate(questionID, label, container, buttonText, currentState, currQuestion, state, corrAnswers) {
@@ -192,6 +195,7 @@ function renderState(buttonText, label, currentState, container, questionID, cur
 	}
 }
 
+
 //LOGIC FUNCTIONS
 
 function processResult(userAnswer, currQuestion, state, corrAnswersTotal) {
@@ -205,6 +209,27 @@ function processResult(userAnswer, currQuestion, state, corrAnswersTotal) {
 	
 }
 
+function checkState(submitButton, currQuestion, state, label, container, currentState, corrAnswersTotal, questionID, buttonText) {
+	if ((currentState === "index") || (currentState === "result" && currQuestion < 5)) {
+		currentState = "questions";
+		console.log(currentState);
+		
+		currQuestion += 1;
+		console.log(currQuestion);
+	} else if (currentState === "questions") {
+		currentState = "result";
+		console.log(currentState);
+		handleSubmit(submitButton, currQuestion, state, label, container, currentState, corrAnswersTotal, questionID, buttonText);
+	} else if (currentState === "result" && currQuestion === 4) {
+		currentState = "final";
+		console.log(currentState);
+		handleButtonClick(submitButton, currQuestion, state, label, container, currentState, corrAnswersTotal, questionID);
+	}
+
+	return currentState;
+}
+
+
 //EVENT HANDLERS
 
 function handler(currentState, buttonText, label, container, questionID, currQuestion, corrAnswersTotal, renderer) {
@@ -212,14 +237,16 @@ function handler(currentState, buttonText, label, container, questionID, currQue
 	renderer(buttonText, label, currentState, container, questionID, currQuestion, corrAnswersTotal);
 }
 
-function handleInitialState(state, container, label, submitButton, currQuestion, currentState) { //currentState = index
+function handleInitialState(state, container, label, submitButton, currQuestion, currentState, corrAnswersTotal) { //currentState = index
 	var buttonText = state.button[currentState]; //value at index is 'Start Game!'
 	var questionID = 0;
 
 	renderState(buttonText, label, currentState, container, questionID, currQuestion);
+
+	handleButtonClick(submitButton, currQuestion, state, label, container, currentState, corrAnswersTotal, questionID, buttonText);
 }
 
-function handleSubmit(submitButton, currQuestion, state, label, container, currentState) {
+function handleSubmit(submitButton, currQuestion, state, label, container, currentState, corrAnswersTotal, questionID, buttonText) {
 	$('.js-question-form').on('submit', submitButton, function(e) {
 		e.preventDefault();
 		e.stopPropagation();
@@ -230,23 +257,20 @@ function handleSubmit(submitButton, currQuestion, state, label, container, curre
 		console.log(userChoice);
 		console.log(newTotal);
 
-		handler(currentState, buttonText, label, container, questionID, currQuestion, corrAnswersTotal, renderState);
+		handler(currentState, buttonText, label, container, questionID, currQuestion, newTotal, renderState);
 
-		return false;
 	});
 }
 
-function handleButtonClick(submitButton, currQuestion, state, label, container, currentState) { //currQuestion = 0
-	var questionID = state.questions[currQuestion].questionID;
-	var buttonText = state.button[currentState];
-	var corrAnswersTotal = state.corrAnswersTotal;
+function handleButtonClick(submitButton, currQuestion, state, label, container, currentState, corrAnswersTotal, questionID, buttonText) { //currQuestion = 0
 
 	container.on('click', submitButton, function(e) {
 		e.preventDefault();
 
+		var newCurrentState = checkState(submitButton, currQuestion, state, label, container, currentState, corrAnswersTotal, questionID, buttonText);
+		currentState = newCurrentState;
+		
 		handler(currentState, buttonText, label, container, questionID, currQuestion, corrAnswersTotal, renderState);
-
-		currQuestion += 1;	
 	});
 }
 
@@ -254,25 +278,20 @@ function handleActions() {
 	var label = '#label';
 	var container = $('.js-main-container');
 	var submitButton = '.js-submit-btn';
+
 	var currQuestion = state.currQuestion;
+	var questionID = state.questions[currQuestion].questionID;
 	var currentState = state.currentState;
+	var corrAnswersTotal = state.corrAnswersTotal;
+	var buttonText = state.button[currentState];
 
 	console.log(currentState);
+	console.log(currQuestion);
 
-	handleInitialState(state, container, label, submitButton, currQuestion, currentState);
-
-	if ((currentState === "index") || (currentState === "result" && currQuestion < 5)) {
-		currentState = "questions";
-		console.log(currentState);
-		handleButtonClick(submitButton, currQuestion, state, label, container, currentState);
-	} else if (currentState === "questions") {
-		currentState = "result";
-		console.log(currentState);
-		handleSubmit(submitButton, currQuestion, state, label, container, currentState);
-	}
+	handleInitialState(state, container, label, submitButton, currQuestion, currentState, corrAnswersTotal);
+	
+	//newCurrentState = checkState(submitButton, currQuestion, state, label, container, currentState, corrAnswersTotal, questionID, buttonText);
 	
 }
-
-
 
 $(document).ready(handleActions);
