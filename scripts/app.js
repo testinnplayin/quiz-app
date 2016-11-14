@@ -36,7 +36,7 @@ var state = {
 			questionID: 5
 		}
 	],
-	result: 'result for single question',
+	result: 'Here is the result:',
 	answerFeedback: [
 		{
 			questionID: 1,
@@ -87,6 +87,12 @@ function getQuestion(state, questionIndex) {
 	return state.questions[questionIndex].q;
 }
 
+function getAnswerFeedback(state, questionID) {
+	if (state.answerFeedback.questionID === questionID) {
+		return state.answerFeedback.answer;
+	}
+}
+
 //display functions
 
 function displayScore(element, totalVal, currVal) {
@@ -123,6 +129,18 @@ function displayButton(buttonText) {
 	return buttonTemplate;
 }
 
+function renderResultTemplate(buttonText, state, container, questionID) {
+	var page = state.result;
+	var button = displayButton(buttonText);
+	var answer = getAnswerFeedback(state, questionID);
+
+	var result = ("<p>" + page + "</p>" + "<br />" 
+		+ "<p>" + answer + "</p><br />"
+		+ "<p>You have <span class='span-1'></span> out of <span class='span-2'></span> questions correct."
+		+ button);
+	container.html(result);
+}
+
 function renderQuestionTemplate(questionID, label, container, buttonText, currentState, currQuestion, state) {
 	var question = getQuestion(state, currQuestion);//(state, 0)
 	var questionDisplay = displayQuestion(question, questionTemplate, label);
@@ -151,13 +169,15 @@ function renderState(buttonText, label, currentState, container, questionID, cur
 		renderIndex(buttonText, state, container);
 	} else if (currentState === 'questions') {
 		renderQuestionTemplate(questionID, label, container, buttonText, currentState, currQuestion, state);//(1, label, container, 'Submit!', 'questions', 0)
+	} else if (currentState === 'result') {
+		renderResultTemplate(buttonText, state, container);
 	}
 }
 
 //logic functions
 
 function processResult(answer, questionIndex, state) {
-	var correctAnswer = state.questions[currQuestion].answerID;
+	var correctAnswer = state.questions[questionIndex].answerID;
 	
 }
 
@@ -171,21 +191,6 @@ function handleInitialState(state, container, label) {
 
 	renderState(buttonText, label, currentState, container, questionID, currQuestion);
 }
-
-//function handleGameStart(currQuestion, label, container, state, submitButton) {
-//	container.on('click', submitButton, function(e) {
-//		e.preventDefault();
-//
-//		currQuestion; //currQuestion is 0
-//		state.currentState = 'questions';
-//
-//		var currentState = state.currentState;
-//		var questionID = state.questions[currQuestion].questionID;
-//		var buttonText = state.button[currentState];
-//
-//		renderState(buttonText, label, currentState, container, questionID, currQuestion); //('Submit!', label, 'questions', container, 1, 0)
-//	});
-//}
 
 function handleSubmit(submitButton, currQuestion, state, label, container) { //currQuestion = 0
 
@@ -201,32 +206,33 @@ function handleSubmit(submitButton, currQuestion, state, label, container) { //c
 
 		if (currentState === "index") {
 			currentState = "questions";
+			buttonText = state.button[currentState];
 			renderState(buttonText, label, currentState, container, questionID, currQuestion);
+			currQuestion += 1;
+			var userAnswer = $('input[name="answer"]:radio:checked').val();
+			processResult(userAnswer, currQuestion, state);
+		} else if (currentState === "questions") {
+			currentState = "result";
+			buttonText = state.button[currentState];
+			renderState(buttonText, label, currentState, container, questionID, currQuestion);
+			
 		}
-		
-		
-
-
-		//var userAnswer = $('input[name="answer"]:radio:checked');
-		//alert(userAnswer);
-		//processResult(userAnswer, currQuestion, state);
-		
-		
+			
 	});
 }
 
 function handleActions() {
-	var form = $('.js-question-form');
 	var label = '#label';
 	var questionField = $('.js-question-field');
 	var container = $('.js-main-container');
 	var submitButton = '.js-submit-btn';
 	var currQuestion = state.currQuestion;
 
-	handleInitialState(state, container, label, form);
-	//handleGameStart(currQuestion, label, container, state, submitButton);
+	handleInitialState(state, container, label);
 	handleSubmit(submitButton, currQuestion, state, label, container);
 
 }
+
+
 
 $(document).ready(handleActions);
