@@ -90,24 +90,29 @@ function getQuestion(state, questionIndex) {
 //display functions
 
 function displayScore(corrAnswers, arrLng) {
-	var score = $('js.score');
+	var score = $('.js-score');
+
 	score.find('.js-correct').text(corrAnswers);
 	score.find('.js-incorrect').text(arrLng - corrAnswers);
+	score.removeClass('hidden');
 }
 
-function displayAnswers(state, questionIndex, fieldset) {
+function displayAnswers(state, questionIndex, buttonText) {
 	var answerArr = getAnswers(state, questionIndex);
 	var lng = answerArr.length;
 	var inputGroup = '.input-group';
 	var corrAnswers = state.corrAnswers;
+	var button = displayButton(buttonText);
 
 	for (var i = 0; i < lng; i++) {
 		var answer = answerArr[i];
 		var answerTemplate = '<input type="radio" name="answer" id="question' + i + '" value="' + answer + '" />' + answer + '<br />';
-		
-		fieldset.find(inputGroup).append(answerTemplate);
-		displayScore(corrAnswers, lng);
-	}	
+		console.log(answerTemplate);
+		$('.js-question-form').find(inputGroup).append(answerTemplate);
+	}
+	
+	$('.js-question-form').find(inputGroup).append(button);
+	displayScore(corrAnswers, lng);
 }
 
 function displayQuestion(question, questionTemplate, label) {
@@ -118,17 +123,16 @@ function displayQuestion(question, questionTemplate, label) {
 
 function displayButton(buttonText) {
 	var buttonTemplate = '<button type="submit" class="submit-btn js-submit-btn">' + buttonText + '</button>';
-	console.log(buttonText);
 	return buttonTemplate;
 }
 
-function renderQuestionTemplate(questionID, label, container, buttonText, form, currentState, currQuestion) {
+function renderQuestionTemplate(questionID, label, container, buttonText, currentState, currQuestion, form) {
 	var fieldset = $('.js-question-field');
 	var question = getQuestion(state, currQuestion);//(state, 0)
 	var questionDisplay = displayQuestion(question, questionTemplate, label);
 
 	container.html(questionDisplay);
-	displayAnswers(state, currQuestion, fieldset);
+	displayAnswers(state, currQuestion, buttonText);
 }
 
 function renderIndex(buttonText, state, container) {
@@ -140,24 +144,26 @@ function renderIndex(buttonText, state, container) {
 	container.html(welcome);
 }
 
-function renderState(buttonText, label, currentState, container, questionID, form, currQuestion) {
+function renderState(buttonText, label, currentState, container, questionID, currQuestion, form) {
 	if(state.currentState === 'index') {
 		renderIndex(buttonText, state, container);
 	} else if (state.currentState === 'questions') {
-		renderQuestionTemplate(questionID, label, container, buttonText, form, currentState, currQuestion);//(1, label, container, 'Submit!', form, 'questions', 0)
+		renderQuestionTemplate(questionID, label, container, buttonText, currentState, currQuestion, form);//(1, label, container, 'Submit!', 'questions', 0, form)
 	}
 }
 
 //event handlers
 
-function handleInitialState(state, container, label) {
+function handleInitialState(state, container, label, form) {
 	var currentState = state.currentState; //index
 	var buttonText = state.button[currentState]; //value at index is 'Start Game!'
+	var questionID = 0;
+	var currQuestion = 0;
 
-	renderState(buttonText, label, currentState, container);
+	renderState(buttonText, label, currentState, container, questionID, currQuestion, form);
 }
 
-function handleGameStart(form, currQuestion, label, container, state, submitButton) {
+function handleGameStart(currQuestion, label, container, state, submitButton, form) {
 	container.on('click', submitButton, function(e) {
 		e.preventDefault();
 
@@ -168,7 +174,7 @@ function handleGameStart(form, currQuestion, label, container, state, submitButt
 		var questionID = state.questions[currQuestion].questionID;
 		var buttonText = state.button[currentState];
 
-		renderState(buttonText, label, currentState, container, questionID, form, currQuestion); //('Submit!', label, 'questions', container, 1, form, 0)
+		renderState(buttonText, label, currentState, container, questionID, currQuestion, form); //('Submit!', label, 'questions', container, 1, 0, form)
 	});
 }
 
@@ -194,8 +200,8 @@ function handleActions() {
 	var submitButton = '.js-submit-btn';
 	var currQuestion = state.currQuestion;
 
-	handleInitialState(state, container, label);
-	handleGameStart(form, currQuestion, label, container, state, submitButton);
+	handleInitialState(state, container, label, form);
+	handleGameStart(currQuestion, label, container, state, submitButton, form);
 	handleSubmit(form, currQuestion, label, container, state);
 
 }
