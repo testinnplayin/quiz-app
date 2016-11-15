@@ -70,34 +70,34 @@ var questionTemplate = (
 	+ '</form>'
 	);
 
+
 //STATE FUNCTIONS
 
-function getAnswers(currQuestion) {
-	return state.questions[currQuestion].a;
+function getAnswers(obj) {
+	return state.questions[obj.currQuestion].a;
 }
 
-function getQuestion(currQuestion) {
-	return state.questions[currQuestion].q;
+function getQuestion(obj) {
+	return state.questions[obj.currQuestion].q;
 }
 
-function getAnswerFeedback(currQuestion) {
+function getAnswerFeedback(obj) {
 	var lng = state.answerFeedback.length;
 
 	for(var i = 0; i < lng; i++)
 	{
-		if(state.answerFeedback[i]['questionID'] === state.questions[currQuestion]['questionID']) {
+		if(state.answerFeedback[i]['questionID'] === state.questions[obj.currQuestion]['questionID']) {
 			return state.answerFeedback[i].answer;
 		}
 	}
 }
 
-function getQuestionID(currQuestion) {
-	return state.questions[currQuestion].questionID;
+function getQuestionID(obj) {
+	return state.questions[obj.currQuestion].questionID;
 }
 
-function getAnswerID(currQuestion) {
-	console.log('getanswerID ' + state.questions[currQuestion].answerID);
-	return state.questions[currQuestion].answerID;
+function getAnswerID(obj) {
+	return state.questions[obj.currQuestion].answerID;
 }
 
 
@@ -112,15 +112,15 @@ function displayScore(element, totalVal, currVal) {
 	$(element).removeClass('hidden');
 }
 
-function displayButton(currentState) {
-	var buttonTemplate = '<button type="submit" class="submit-btn js-submit-btn">' + state.button[currentState] + '</button>';
+function displayButton(obj) {
+	var buttonTemplate = '<button type="submit" class="submit-btn js-submit-btn">' + state.button[obj.currentState] + '</button>';
 	return buttonTemplate;
 }
 
-function displayAnswers(currentState, currQuestion) {
-	var answerArr = getAnswers(currQuestion);
+function displayAnswers(obj) {
+	var answerArr = getAnswers(obj);
 	var lng = answerArr.length;
-	var button = displayButton(currentState);
+	var button = displayButton(obj);
 
 	for (var i = 0; i < lng; i++) {
 		var answer = answerArr[i];
@@ -141,22 +141,22 @@ function displayQuestion(question, questionTemplate, label) {
 //Template display functions
 
 
-function renderFinalTemplate(currentState) {
-	var page = state.pages[currentState];
-	var button = displayButton(currentState);
+function renderFinalTemplate(obj, corrAnswersTotal) {
+	var page = state.pages[obj.currentState];
+	var button = displayButton(obj);
 
-	var bye = ("<p>Your final score was: </p><span class='span-1'></span> out of <span class='span-2'></span>");
+	var bye = ("<p class = 'result'>Your final score was: </p><span class='span-1'></span> out of <span class='span-2'></span>");
 
 	$('.js-main-container').html(bye);
 
-	displayScore($('.js-main-container'), state.questions.length, state.questions[currQuestion].questionID);
+	displayScore($('.js-main-container'), state.questions.length, state.questions[obj.currQuestion].questionID);
 	$('.js-current-ticker, .js-score').addClass('hidden');
 }
 
-function renderResultTemplate(currentState, currQuestion, corrAnswersTotal) {
-	var page = state.pages[currentState];
-	var button = displayButton(currentState);
-	var answer = getAnswerFeedback(currQuestion);
+function renderResultTemplate(obj, corrAnswersTotal) {
+	var page = state.pages[obj.currentState];
+	var button = displayButton(obj);
+	var answer = getAnswerFeedback(obj);
 
 	var result = ("<p>" + page + "</p>" + "<br />"
 		+ "<p>" + answer + "</p><br />"
@@ -165,51 +165,51 @@ function renderResultTemplate(currentState, currQuestion, corrAnswersTotal) {
 
 	$('.js-main-container').html(result);
 
-	displayScore($('.js-current-ticker'), state.questions.length, state.questions[currQuestion].questionID);
-	displayScore($('.js-score'), corrAnswersTotal, currQuestion - corrAnswersTotal);
+	displayScore($('.js-current-ticker'), state.questions.length, state.questions[obj.currQuestion].questionID);
+	displayScore($('.js-main-container'), state.questions.length, corrAnswersTotal);
+	$('.js-score').addClass('hidden');
 }
 
-function renderQuestionTemplate(currentState, currQuestion, corrAnswersTotal) {
-	var question = getQuestion(currQuestion);
-	console.log("Got question! " + currQuestion);
+function renderQuestionTemplate(obj, corrAnswersTotal) {
+	var question = getQuestion(obj);
 	var questionDisplay = displayQuestion(question, questionTemplate, '#label');
 
 	$('.js-main-container').html(questionDisplay);
 
-	displayAnswers(currentState, currQuestion);
-	displayScore('.js-score', corrAnswersTotal, currQuestion - corrAnswersTotal);
-	displayScore('.js-current-ticker', state.questions.length, state.questions[currQuestion].questionID);
+	displayAnswers(obj);
+	displayScore('.js-score', corrAnswersTotal, obj.currQuestion - corrAnswersTotal);
+	displayScore('.js-current-ticker', state.questions.length, state.questions[obj.currQuestion].questionID);
 }
 
 //Render view functions
 
-function renderIndexView(currentState) {
-	var page = state.pages[currentState];
-	var button = displayButton(currentState);
+function renderIndexView(obj) {
+	var page = state.pages[obj.currentState];
+	var button = displayButton(obj);
 	var welcome = "<h1>Monty Python Quiz Game!</h1>"
 	+ '<p>' + page + '</p>' + button;
 
 	$('.js-main-container').html(welcome);
 }
 
-function renderState(currentState, currQuestion, corrAnswersTotal) {
-	if(currentState === 'index') {
-		renderIndexView(currentState);
-	} else if (currentState === 'questions') {
-		renderQuestionTemplate(currentState, currQuestion, corrAnswersTotal);
-	} else if (currentState === 'result') {
-		currQuestion += 1;
-		renderResultTemplate(currentState, currQuestion, corrAnswersTotal); 
-	} else if (currentState === 'final') {
-		renderFinalTemplate(container, currentState);
+function renderState(obj, corrAnswersTotal) {
+	if(obj.currentState === 'index') {
+		renderIndexView(obj);
+	} else if (obj.currentState === 'questions') {
+		renderQuestionTemplate(obj, corrAnswersTotal);
+		console.log("rendered question template");
+	} else if (obj.currentState === 'result') {
+		renderResultTemplate(obj, corrAnswersTotal); 
+	} else if (obj.currentState === 'final') {
+		renderFinalTemplate(obj, corrAnswersTotal);
 	}
 }
 
 
 //LOGIC FUNCTIONS
 
-function processResult(userAnswer, currQuestion, corrAnswersTotal) {
-	var correctAnswer = getAnswerID(currQuestion);
+function processResult(userAnswer, obj, corrAnswersTotal) {
+	var correctAnswer = getAnswerID(obj);
 
 	if (parseInt(userAnswer) === parseInt(correctAnswer)) {
 		corrAnswersTotal +=1;
@@ -218,70 +218,63 @@ function processResult(userAnswer, currQuestion, corrAnswersTotal) {
 	return corrAnswersTotal;
 }
 
-function checkState(currentState, currQuestion) {
+function checkState(obj) {
 
-	while (currQuestion < 5) {
+	while (obj.currQuestion < 5) {
 
-		if (currentState === "index") {
-			currentState = "questions";
-			handleButtonClick(currentState, currQuestion);
-			return currentState;
-		} else if (currentState === "questions") {
-			currentState = "result";
-			handleButtonClick(currentState, currQuestion);
-			return currentState;
-		} else if (currentState === "result") {
-			currentState = "question";
-			currQuestion += 1;
-			return currentState;
+		if (obj.currentState === "index" || obj.currentState === "result") {
+			if (obj.currentState === "result") {
+				obj.currQuestion += 1;
+			}
+			obj.currentState = "questions";
+			return obj;
+		} else if (obj.currentState === "questions") {
+			obj.currentState = "result";
+			return obj;
 		}
-
 	}
 
-	currentState = "final";
-	handleButtonClick(currentState, currQuestion);
+	obj.currentState = "final";
 
-	return currentState;
+	return obj;
 }
 
 
 //EVENT HANDLERS
 
 
-function handleButtonClick(currentState, currQuestion) {
+function handleButtonClick(obj) {
 	var corrAnswersTotal = 0;
 
 	$('.js-main-container').on('click', '.js-submit-btn', function(e) {
 		e.preventDefault();
-		e.stopImmediatePropagation();
 
 		var userChoice = $('.js-input-group input[name="answer"]:radio:checked').val();
-		var newTotal = processResult(userChoice, currQuestion, corrAnswersTotal);
-		console.log("User choice " + userChoice);
-		console.log('newTotal: ' + newTotal);
+		var newTotal = processResult(userChoice, obj, corrAnswersTotal);
+
 		corrAnswersTotal = newTotal;
 
-		var newCurrentState = checkState(currentState, currQuestion);
+		var newCurrentState = checkState(obj);
 
-		currentState = newCurrentState;
-		console.log("click button current state is " + currentState);
-		console.log("click button current question is " + currQuestion);
+		obj.currentState = newCurrentState.currentState;
 
-		renderState(currentState, currQuestion, corrAnswersTotal);
+		console.log("click button current state is " + obj.currentState);
+		console.log("click button current question is " + obj.currQuestion);
+
+		renderState(obj, corrAnswersTotal);
 		
 	});
 }
 
-function handleInitialState() { //state.currentState = index, state.currQuestion = 0
-	var currentState = 'index',
-		currQuestion = 0;
-	
-	console.log("initial state is " + currentState);
-	console.log("initial question is " + currQuestion);
+function handleInitialState() { 
+	var obj = { 
+		currentState : 'index',
+		currQuestion : 0 
+	};
 
-	renderState(currentState, currQuestion);
+	renderState(obj);
 
-	handleButtonClick(currentState, currQuestion);
+	handleButtonClick(obj);
 }
 
 $(document).ready(handleInitialState);

@@ -1,5 +1,6 @@
 .current-question-ticker,
-.score {
+.score,
+.result {
 	padding-top: 30px;
 	text-align: center;
 }
