@@ -84,16 +84,11 @@ function getQuestion(questionIndex) {
 }
 
 function getAnswerFeedback(questionID) {
-<<<<<<< HEAD
-	if (state.answerFeedback.questionID === questionID) {
-		return state.answerFeedback.answer;
-=======
 	for(var i=0; i<state.answerFeedback.length; i++)
 	{
 		if(state.answerFeedback[i]['questionID'] === state.questions[state.currQuestion]['questionID']) {
 			return state.answerFeedback[i].answer;
 		}
->>>>>>> 913869806de0980af20b4899ae877f352f7a8eec
 	}
 }
 
@@ -103,10 +98,7 @@ function getQuestionID(questionIndex) {
 
 <<<<<<< HEAD
 function getAnswerID(questionIndex) {
-=======
-function getAnswerID(state, questionIndex) {
 	console.log('--> ' + state.questions[questionIndex].answerID);
->>>>>>> 913869806de0980af20b4899ae877f352f7a8eec
 	return state.questions[questionIndex].answerID;
 }
 
@@ -151,16 +143,11 @@ function displayButton(buttonText) {
 //Template display functions
 
 
-<<<<<<< HEAD
+
 function renderFinalTemplate(container) {
 	var page = state.pages[state.currentState];
 	var button = displayButton(state.button[state.currentState]);
-=======
-function renderFinalTemplate(buttonText, state, container, corrAnswersTotal,  quesNum) {
-	var page = state.pages[state.currentState];
-	var button = displayButton(buttonText);
 	var questionTicker = $('.js-current-ticker');
->>>>>>> 913869806de0980af20b4899ae877f352f7a8eec
 
 	var bye = ("<p>Your final score was: </p><span class='span-1'></span> out of <span class='span-2'></span>");
 
@@ -175,12 +162,6 @@ function renderResultTemplate(container) {
 	var page = state.pages[state.currentState];
 	var button = displayButton(state.button[state.currentState]);
 	var answer = getAnswerFeedback(state.questions.questionID);
-=======
-function renderResultTemplate(buttonText, state, container, questionID,  corrAnswersTotal, quesNum, currQuestion) {
-	var page = state.pages[state.currentState];
-	var button = displayButton(buttonText);
-	var answer = getAnswerFeedback(questionID);
->>>>>>> 913869806de0980af20b4899ae877f352f7a8eec
 	var questionTicker = $('.js-current-ticker');
 
 	var result = ("<p>" + page + "</p>" + "<br />"
@@ -195,13 +176,8 @@ function renderResultTemplate(buttonText, state, container, questionID,  corrAns
 	displayScore($('.js-score'), state.corrAnswersTotal, state.currQuestion - state.corrAnswersTotal);
 }
 
-<<<<<<< HEAD
 function renderQuestionTemplate(label, container) {
 	var question = getQuestion(state.currQuestion);//(state, 0)
-=======
-function renderQuestionTemplate(label, container, buttonText,  currQuestion, state, corrAnswers, quesNum) {
-	var question = getQuestion(state, currQuestion);//(state, 0)
->>>>>>> 913869806de0980af20b4899ae877f352f7a8eec
 	var questionDisplay = displayQuestion(question, questionTemplate, label);
 	var score = $('.js-score');
 	var questionTicker = $('.js-current-ticker');
@@ -216,22 +192,15 @@ function renderQuestionTemplate(label, container, buttonText,  currQuestion, sta
 
 //Render view and state functions
 
-<<<<<<< HEAD
 function renderIndexView(container) {
 	var page = state.pages[state.currentState];
 	var button = displayButton(state.button[state.currentState]);
-=======
-function renderIndexView(buttonText, state, container) {
-	var page = state.pages[state.currentState];
-	var button = displayButton(buttonText);
->>>>>>> 913869806de0980af20b4899ae877f352f7a8eec
 	var welcome = "<h1>Monty Python Quiz Game!</h1>"
 	+ '<p>' + page + '</p>' + button;
 
 	container.html(welcome);
 }
 
-<<<<<<< HEAD
 function renderState(label, container, submitButton) {
 	if(state.currentState === 'index') {
 		renderIndexView(container);
@@ -242,17 +211,6 @@ function renderState(label, container, submitButton) {
 		renderResultTemplate(container);
 	} else if (state.currentState === 'final') {
 		renderFinalTemplate(container);
-=======
-function renderState(buttonText, label,  container, questionID, currQuestion, corrAnswersTotal, quesNum) {
-	if(state.currentState === 'index') {
-		renderIndexView(buttonText, state, container, state.currentState);
-	} else if (state.currentState === 'questions') {
-		renderQuestionTemplate(label, container, buttonText,  currQuestion, state, corrAnswersTotal, quesNum);//(1, label, container, 'Submit!', 'questions', 0, state, 0)
-	} else if (state.currentState === 'result') {
-		renderResultTemplate(buttonText, state, container, questionID,  corrAnswersTotal, quesNum, currQuestion); //('Next', state, container, 1, 'result', 0)
-	} else if (state.currentState === 'final' && currQuestion === 5) {
-		renderFinalTemplate(buttonText, state, container, corrAnswersTotal,  quesNum);
->>>>>>> 913869806de0980af20b4899ae877f352f7a8eec
 	}
 }
 
@@ -262,38 +220,11 @@ function renderState(buttonText, label,  container, questionID, currQuestion, co
 function processResult(userAnswer) {
 	var correctAnswer = getAnswerID(state.currQuestion);
 
-<<<<<<< HEAD
-	if (userAnswer === correctAnswer) {
-=======
 	if (parseInt(userAnswer) === parseInt(correctAnswer)) {
->>>>>>> 913869806de0980af20b4899ae877f352f7a8eec
 		state.corrAnswersTotal +=1;
 	}
 
 	return state.corrAnswersTotal;
-<<<<<<< HEAD
-	
-}
-
-function checkState(submitButton, label, container, currentState) {
-	if ((currentState === "index") || (currentState === "result" && state.currQuestion < 5)) {
-		currentState = "questions";
-		state.currQuestion;
-		console.log("old current state " + currentState);
-		console.log("old current question " + state.currQuestion);
-		handleButtonClick(submitButton, label, container, currentState);
-	} else if (currentState === "questions") {
-		currentState = "result";
-		console.log("switch to " + currentState);
-		state.currQuestion += 1;
-		console.log("switch to currQuestion " + state.currQuestion);
-		handleButtonClick(submitButton, label, container, currentState);
-	} else if (currentState === "result" && currQuestion === 5) {
-		currentState = "final";
-		console.log("This is the last state " + currentState);
-		console.log("The final currQuestion index is " + state.currQuestion);
-=======
-
 }
 
 function checkState(submitButton, currQuestion, state, label, container,  corrAnswersTotal, questionID, buttonText, quesNum) {
@@ -312,7 +243,6 @@ function checkState(submitButton, currQuestion, state, label, container,  corrAn
 		state.currentState = "final";
 		console.log(state.currentState);
 		handleButtonClick(submitButton, currQuestion, state, label, container,  corrAnswersTotal, questionID, quesNum);
->>>>>>> 913869806de0980af20b4899ae877f352f7a8eec
 	}
 
 	return state.currentState;
@@ -321,23 +251,6 @@ function checkState(submitButton, currQuestion, state, label, container,  corrAn
 
 //EVENT HANDLERS
 
-<<<<<<< HEAD
-function handler(label, container, submitButton) {
-	renderState(label, container, submitButton);
-}
-
-function handleInitialState(container, label, submitButton) { 
-	var questionID = 0;
-
-	console.log("initial state " + state.currentState);
-	console.log("initial currQuestion " + state.currQuestion);
-	renderState(label, container);
-
-	handleButtonClick(submitButton, label, container, state.currentState);
-}
-
-function handleButtonClick(submitButton, label, container, currentState) { 
-=======
 function handler( buttonText, label, container, questionID, currQuestion, corrAnswersTotal, quesNum) {
 	buttonText = state.button[state.currentState];
 	renderState(buttonText, label,  container, questionID, currQuestion, corrAnswersTotal, quesNum);
@@ -371,25 +284,10 @@ function handleSubmit(submitButton, currQuestion, state, label, container,  corr
 }
 
 function handleButtonClick(submitButton, currQuestion, state, label, container,  corrAnswersTotal, questionID, buttonText, quesNum) { //currQuestion = 0
->>>>>>> 913869806de0980af20b4899ae877f352f7a8eec
 
 	container.on('click', submitButton, function(e) {
 		e.preventDefault();
 
-<<<<<<< HEAD
-		state.currQuestion;
-		console.log("middle curr state " + currentState);
-		console.log("middle curr question " + state.currQuestion);
-		var userChoice = $('.js-input-group input[name="answer"]:radio:checked').val();
-		var newTotal = processResult(userChoice);
-
-		console.log("new button currQuestion " + state.currQuestion);
-		var newCurrentState = checkState(submitButton, label, container, currentState);
-		state.currentState = newCurrentState;
-		console.log("New button currentState " + state.currentState);
-
-		handler(label, container);
-=======
 		var userChoice = $('.js-input-group input[name="answer"]:radio:checked').val();
 		var newTotal = processResult(userChoice, currQuestion, state, corrAnswersTotal);
 		console.log('newTotal: ' + newTotal);
@@ -399,7 +297,6 @@ function handleButtonClick(submitButton, currQuestion, state, label, container, 
 		state.currentState = newCurrentState;
 
 		handler( buttonText, label, container, questionID, currQuestion, corrAnswersTotal, quesNum);
->>>>>>> 913869806de0980af20b4899ae877f352f7a8eec
 	});
 }
 
@@ -408,9 +305,6 @@ function handleActions() {
 	var container = $('.js-main-container');
 	var submitButton = '.js-submit-btn';
 
-<<<<<<< HEAD
-	handleInitialState(container, label, submitButton);	
-=======
 	var currQuestion = state.currQuestion;
 	var corrAnswersTotal = state.corrAnswersTotal;
 	var buttonText = state.button[state.currentState];
@@ -419,8 +313,6 @@ function handleActions() {
 	console.log(state.currentState);
 	console.log(currQuestion);
 
-	handleInitialState(state, container, label, submitButton, currQuestion,  corrAnswersTotal, quesNum);
->>>>>>> 913869806de0980af20b4899ae877f352f7a8eec
 }
 
 $(document).ready(handleActions);
