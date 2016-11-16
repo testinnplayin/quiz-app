@@ -2,7 +2,6 @@
 'use strict'
 
 var state = {
-	currentState: 'index',
 	pages: { index : 'Click below to start!', result : 'Here is the result:', final : 'Final Score' },
 	questions: [
 		{
@@ -59,8 +58,6 @@ var state = {
 		}
 	],
 	button: { index : 'Start Game!', questions : 'Submit!', result : 'Next', final : 'Start New Game!'},
-	currQuestion: 0,
-	corrAnswersTotal: 0
 };
 
 var questionTemplate = (
@@ -73,32 +70,34 @@ var questionTemplate = (
 	+ '</form>'
 	);
 
+
 //STATE FUNCTIONS
 
-function getAnswers (state, questionIndex) {
-	return state.questions[questionIndex].a;
+function getAnswers(obj) {
+	return state.questions[obj.currQuestion].a;
 }
 
-function getQuestion(state, questionIndex) {
-	return state.questions[questionIndex].q;
+function getQuestion(obj) {
+	return state.questions[obj.currQuestion].q;
 }
 
-function getAnswerFeedback(questionID) {
-	for(var i=0; i<state.answerFeedback.length; i++)
+function getAnswerFeedback(obj) {
+	var lng = state.answerFeedback.length;
+
+	for(var i = 0; i < lng; i++)
 	{
-		if(state.answerFeedback[i]['questionID'] === state.questions[state.currQuestion]['questionID']) {
+		if(state.answerFeedback[i]['questionID'] === state.questions[obj.currQuestion]['questionID']) {
 			return state.answerFeedback[i].answer;
 		}
 	}
 }
 
-function getQuestionID(state, currQuestion) {
-	return state.questions[currQuestion].questionID;
+function getQuestionID(obj) {
+	return state.questions[obj.currQuestion].questionID;
 }
 
-function getAnswerID(state, questionIndex) {
-	console.log('--> ' + state.questions[questionIndex].answerID);
-	return state.questions[questionIndex].answerID;
+function getAnswerID(obj) {
+	return state.questions[obj.currQuestion].answerID;
 }
 
 
@@ -108,24 +107,28 @@ function getAnswerID(state, questionIndex) {
 //Element display functions
 
 function displayScore(element, totalVal, currVal) {
-	element.find('.span-1').text(currVal);
-	element.find('.span-2').text(totalVal);
-	element.removeClass('hidden');
+	$(element).find('.span-1').text(currVal);
+	$(element).find('.span-2').text(totalVal);
+	$(element).removeClass('hidden');
 }
 
-function displayAnswers(state, questionIndex, buttonText) {
-	var answerArr = getAnswers(state, questionIndex);
+function displayButton(obj) {
+	var buttonTemplate = '<button type="submit" class="submit-btn js-submit-btn">' + state.button[obj.currentState] + '</button>';
+	return buttonTemplate;
+}
+
+function displayAnswers(obj) {
+	var answerArr = getAnswers(obj);
 	var lng = answerArr.length;
-	var inputGroup = '.input-group';
-	var button = displayButton(buttonText);
+	var button = displayButton(obj);
 
 	for (var i = 0; i < lng; i++) {
 		var answer = answerArr[i];
-		var answerTemplate = '<input type="radio" name="answer" id="' + (i + 1) + '" value="' + (i + 1) + '" required />' + answer + '<br />';
+		var answerTemplate = '<input type="radio" name="answer" id="' + (i + 1) + '" value="' + (i + 1) + '" />' + answer + '<br />';
 
-		$('.js-question-form').find(inputGroup).append(answerTemplate);
+		$('.js-question-form').find('.js-input-group').append(answerTemplate);
 	}
-	$('.js-question-form').find(inputGroup).append(button);
+	$('.js-question-form').find('.js-input-group').append(button);
 }
 
 function displayQuestion(question, questionTemplate, label) {
@@ -134,182 +137,149 @@ function displayQuestion(question, questionTemplate, label) {
 	return element;
 }
 
-function displayButton(buttonText) {
-	var buttonTemplate = '<button type="submit" class="submit-btn js-submit-btn">' + buttonText + '</button>';
-	return buttonTemplate;
-}
 
 //Template display functions
 
 
-function renderFinalTemplate(buttonText, state, container, corrAnswersTotal,  quesNum) {
-	var page = state.pages[state.currentState];
-	var button = displayButton(buttonText);
-	var questionTicker = $('.js-current-ticker');
+function renderFinalTemplate(obj, corrAnswersTotal) {
+	var page = state.pages[obj.currentState];
+	var button = displayButton(obj);
 
-	var bye = ("<p>Your final score was: </p><span class='span-1'></span> out of <span class='span-2'></span>");
+	var bye = ("<p class = 'result'>Your final score was: </p><span class='span-1'></span> questions correct out of <span class='span-2'></span> questions total."
+		+ button);
 
-	container.html(bye);
+	$('.js-main-container').html(bye);
 
-	displayScore(questionTicker, quesNum, corrAnswersTotal);
+	displayScore($('.js-main-container'), state.questions.length, state.questions[obj.currQuestion].questionID);
 	$('.js-current-ticker, .js-score').addClass('hidden');
 }
 
-function renderResultTemplate(buttonText, state, container, questionID,  corrAnswersTotal, quesNum, currQuestion) {
-	var page = state.pages[state.currentState];
-	var button = displayButton(buttonText);
-	var answer = getAnswerFeedback(questionID);
-	var questionTicker = $('.js-current-ticker');
+function renderResultTemplate(obj, corrAnswersTotal) {
+	var page = state.pages[obj.currentState];
+	var button = displayButton(obj);
+	var answer = getAnswerFeedback(obj);
 
 	var result = ("<p>" + page + "</p>" + "<br />"
 		+ "<p>" + answer + "</p><br />"
 		+ "<p>You have <span class='span-1'></span> out of <span class='span-2'></span> questions correct."
 		+ button);
 
-	container.html(result);
+	$('.js-main-container').html(result);
 
-	displayScore(questionTicker, quesNum, questionID);
-	displayScore($('.js-score'), corrAnswersTotal, currQuestion - corrAnswersTotal);
+	displayScore($('.js-current-ticker'), state.questions.length, state.questions[obj.currQuestion].questionID);
+	displayScore($('.js-main-container'), state.questions.length, corrAnswersTotal);
+	$('.js-score').addClass('hidden');
 }
 
-function renderQuestionTemplate(label, container, buttonText,  currQuestion, state, corrAnswers, quesNum) {
-	var question = getQuestion(state, currQuestion);//(state, 0)
-	var questionDisplay = displayQuestion(question, questionTemplate, label);
-	var score = $('.js-score');
-	var questionTicker = $('.js-current-ticker');
-	var questionID = getQuestionID(state, currQuestion);
+function renderQuestionTemplate(obj, corrAnswersTotal) {
+	var question = getQuestion(obj);
+	var questionDisplay = displayQuestion(question, questionTemplate, '#label');
 
-	container.html(questionDisplay);
+	$('.js-main-container').html(questionDisplay);
 
-	displayAnswers(state, currQuestion, buttonText);
-	displayScore(score, corrAnswers, currQuestion - corrAnswers);
-	displayScore(questionTicker, quesNum, questionID);
+	displayAnswers(obj);
+	displayScore('.js-score', obj.currQuestion - corrAnswersTotal, corrAnswersTotal);
+	displayScore('.js-current-ticker', state.questions.length, state.questions[obj.currQuestion].questionID);
 }
 
 //Render view functions
 
-function renderIndexView(buttonText, state, container) {
-	var page = state.pages[state.currentState];
-	var button = displayButton(buttonText);
+function renderIndexView(obj) {
+	var page = state.pages[obj.currentState];
+	var button = displayButton(obj);
 	var welcome = "<h1>Monty Python Quiz Game!</h1>"
 	+ '<p>' + page + '</p>' + button;
 
-	container.html(welcome);
+	$('.js-main-container').html(welcome);
 }
 
-function renderState(buttonText, label,  container, questionID, currQuestion, corrAnswersTotal, quesNum) {
-	if(state.currentState === 'index') {
-		renderIndexView(buttonText, state, container, state.currentState);
-	} else if (state.currentState === 'questions') {
-		renderQuestionTemplate(label, container, buttonText,  currQuestion, state, corrAnswersTotal, quesNum);//(1, label, container, 'Submit!', 'questions', 0, state, 0)
-	} else if (state.currentState === 'result') {
-		renderResultTemplate(buttonText, state, container, questionID,  corrAnswersTotal, quesNum, currQuestion); //('Next', state, container, 1, 'result', 0)
-	} else if (state.currentState === 'final' && currQuestion === 5) {
-		renderFinalTemplate(buttonText, state, container, corrAnswersTotal,  quesNum);
+function renderState(obj, corrAnswersTotal) {
+	if(obj.currentState === 'index') {
+		renderIndexView(obj);
+	} else if (obj.currentState === 'questions') {
+		renderQuestionTemplate(obj, corrAnswersTotal);
+		console.log("rendered question template");
+	} else if (obj.currentState === 'result') {
+		renderResultTemplate(obj, corrAnswersTotal); 
+	} else if (obj.currentState === 'final') {
+		renderFinalTemplate(obj, corrAnswersTotal);
 	}
 }
 
 
 //LOGIC FUNCTIONS
 
-function processResult(userAnswer, currQuestion, state, corrAnswersTotal) {
-	var correctAnswer = getAnswerID(state, currQuestion);
+function processResult(userAnswer, obj, corrAnswersTotal) {
+	var correctAnswer = getAnswerID(obj);
 
 	if (parseInt(userAnswer) === parseInt(correctAnswer)) {
-		state.corrAnswersTotal +=1;
+		corrAnswersTotal +=1;
 	}
 
-	return state.corrAnswersTotal;
-
+	return corrAnswersTotal;
 }
 
-function checkState(submitButton, currQuestion, state, label, container,  corrAnswersTotal, questionID, buttonText, quesNum) {
-	if ((state.currentState === "index") || (state.currentState === "result" && currQuestion < 5)) {
-		state.currentState = "questions";
-		console.log(state.currentState);
-		currQuestion += 1;
-		console.log(currQuestion);
-		handleSubmit(submitButton, currQuestion, state, label, container,  corrAnswersTotal, questionID, buttonText, quesNum);
-	} else if (state.currentState === "questions") {
-		state.currentState = "result";
-		console.log(state.currentState);
-		currQuestion += 1;
-		handleButtonClick(submitButton, currQuestion, state, label, container,  corrAnswersTotal, questionID, quesNum);
-	} else if (state.currentState === "result" && currQuestion === 5) {
-		state.currentState = "final";
-		console.log(state.currentState);
-		handleButtonClick(submitButton, currQuestion, state, label, container,  corrAnswersTotal, questionID, quesNum);
-	}
+function checkState(obj) {
 
-	return state.currentState;
+
+
+		if ((obj.currentState === "index") || (obj.currentState === "result" && obj.currQuestion < 4)) {
+			if (obj.currentState === "result") {
+				obj.currQuestion += 1;
+			}
+			obj.currentState = "questions";
+			return obj;
+		} else if (obj.currentState === "questions") {
+			obj.currentState = "result";
+			return obj;
+		} else if (obj.currentState === "result" && obj.currQuestion === 4) {
+			obj.currentState = "final";
+			return obj;
+		} else {
+			obj.currentState = "index";
+			obj.currQuestion = 0;
+			return obj;
+		}
+
+	
 }
 
 
 //EVENT HANDLERS
 
-function handler( buttonText, label, container, questionID, currQuestion, corrAnswersTotal, quesNum) {
-	buttonText = state.button[state.currentState];
-	renderState(buttonText, label,  container, questionID, currQuestion, corrAnswersTotal, quesNum);
-}
 
-function handleInitialState(state, container, label, submitButton, currQuestion,  corrAnswersTotal, quesNum) { //state.currentState = index
-	var buttonText = state.button[state.currentState]; //value at index is 'Start Game!'
-	var questionID = 0;
+function handleButtonClick(obj) {
+	var corrAnswersTotal = 0;
 
-	renderState(buttonText, label,  container, questionID, currQuestion, quesNum);
-
-	handleButtonClick(submitButton, currQuestion, state, label, container,  corrAnswersTotal, questionID, buttonText, quesNum);
-}
-
-function handleSubmit(submitButton, currQuestion, state, label, container,  corrAnswersTotal, questionID, buttonText, quesNum) {
-	$('.js-question-form').on('submit', submitButton, function(e) {
-		e.preventDefault();
-		e.stopPropagation();
-
-		console.log(userChoice);
-		console.log(newTotal);
-
-		var newCurrentState = checkState(submitButton, currQuestion, state, label, container,  corrAnswersTotal, questionID, buttonText, quesNum);
-		state.currentState = newCurrentState;
-
-		handler( buttonText, label, container, questionID, currQuestion, newTotal, quesNum);
-
-		return false;
-
-	});
-}
-
-function handleButtonClick(submitButton, currQuestion, state, label, container,  corrAnswersTotal, questionID, buttonText, quesNum) { //currQuestion = 0
-
-	container.on('click', submitButton, function(e) {
+	$('.js-main-container').on('click', '.js-submit-btn', function(e) {
 		e.preventDefault();
 
 		var userChoice = $('.js-input-group input[name="answer"]:radio:checked').val();
-		var newTotal = processResult(userChoice, currQuestion, state, corrAnswersTotal);
-		console.log('newTotal: ' + newTotal);
+		var newTotal = processResult(userChoice, obj, corrAnswersTotal);
 
+		corrAnswersTotal = newTotal;
 
-		var newCurrentState = checkState(submitButton, currQuestion, state, label, container,  corrAnswersTotal, questionID, buttonText);
-		state.currentState = newCurrentState;
+		var newCurrentState = checkState(obj);
 
-		handler( buttonText, label, container, questionID, currQuestion, corrAnswersTotal, quesNum);
+		obj.currentState = newCurrentState.currentState;
+
+		console.log("click button current state is " + obj.currentState);
+		console.log("click button current question is " + obj.currQuestion);
+
+		renderState(obj, corrAnswersTotal);
+		
 	});
 }
 
-function handleActions() {
-	var label = '#label';
-	var container = $('.js-main-container');
-	var submitButton = '.js-submit-btn';
+function handleInitialState() { 
+	var obj = { 
+		currentState : 'index',
+		currQuestion : 0 
+	};
 
-	var currQuestion = state.currQuestion;
-	var corrAnswersTotal = state.corrAnswersTotal;
-	var buttonText = state.button[state.currentState];
-	var quesNum = state.questions.length;
+	renderState(obj);
 
-	console.log(state.currentState);
-	console.log(currQuestion);
-
-	handleInitialState(state, container, label, submitButton, currQuestion,  corrAnswersTotal, quesNum);
+	handleButtonClick(obj);
 }
 
-$(document).ready(handleActions);
+$(document).ready(handleInitialState);
