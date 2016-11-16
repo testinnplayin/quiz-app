@@ -145,7 +145,8 @@ function renderFinalTemplate(obj, corrAnswersTotal) {
 	var page = state.pages[obj.currentState];
 	var button = displayButton(obj);
 
-	var bye = ("<p class = 'result'>Your final score was: </p><span class='span-1'></span> out of <span class='span-2'></span>");
+	var bye = ("<p class = 'result'>Your final score was: </p><span class='span-1'></span> questions correct out of <span class='span-2'></span> questions total."
+		+ button);
 
 	$('.js-main-container').html(bye);
 
@@ -177,7 +178,7 @@ function renderQuestionTemplate(obj, corrAnswersTotal) {
 	$('.js-main-container').html(questionDisplay);
 
 	displayAnswers(obj);
-	displayScore('.js-score', corrAnswersTotal, obj.currQuestion - corrAnswersTotal);
+	displayScore('.js-score', obj.currQuestion - corrAnswersTotal, corrAnswersTotal);
 	displayScore('.js-current-ticker', state.questions.length, state.questions[obj.currQuestion].questionID);
 }
 
@@ -220,9 +221,9 @@ function processResult(userAnswer, obj, corrAnswersTotal) {
 
 function checkState(obj) {
 
-	while (obj.currQuestion < 5) {
 
-		if (obj.currentState === "index" || obj.currentState === "result") {
+
+		if ((obj.currentState === "index") || (obj.currentState === "result" && obj.currQuestion < 4)) {
 			if (obj.currentState === "result") {
 				obj.currQuestion += 1;
 			}
@@ -231,12 +232,16 @@ function checkState(obj) {
 		} else if (obj.currentState === "questions") {
 			obj.currentState = "result";
 			return obj;
+		} else if (obj.currentState === "result" && obj.currQuestion === 4) {
+			obj.currentState = "final";
+			return obj;
+		} else {
+			obj.currentState = "index";
+			obj.currQuestion = 0;
+			return obj;
 		}
-	}
 
-	obj.currentState = "final";
-
-	return obj;
+	
 }
 
 

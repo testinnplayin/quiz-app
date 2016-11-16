@@ -1,13 +1,31 @@
+html {
+	box-sizing: border-box;
+}
+
+*,
+*::after,
+*::before {
+	box-sizing: inherit;
+}
+
 .current-question-ticker,
 .score,
-.result {
+p, 
+h1 {
 	padding-top: 30px;
 	text-align: center;
+	display: block;
+}
+
+fieldset {
+	border: 0;
 }
 
 .main-container {
 	width: 70%;
-	margin: 0 auto;
+	margin: 30px auto;
+	border: 1px solid black;
+	height: 500px;
 }
 
 .question-form {
@@ -20,9 +38,10 @@
 }
 
 .submit-btn {
-	margin: 20px auto;
-	float: right;
+	margin: 40px 0;
+	margin-left: 620px;
 	padding: 10px;
+	display: block;
 }
 
 .submit-btn:hover {
