@@ -1,1 +1,2 @@
 This is a web app that constitutes a quiz game that the user can play. It contains 5 questions with 4 possible answers each. At the end of the game, the user gets a score of incorrect and correct answers.
+Sorry does not work with mobile screens.
