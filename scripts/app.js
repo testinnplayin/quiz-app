@@ -145,12 +145,12 @@ function renderFinalTemplate(obj) {
 	var page = state.pages[obj.currentState];
 	var button = displayButton(obj);
 
-	var bye = ("<p class = 'result'>Your final score was: </p><span class='span-1'></span> questions correct out of <span class='span-2'></span> questions total."
+	var bye = ("<p class = 'result'>Your final score was: <span class='span-1'></span> questions correct out of <span class='span-2'></span> questions total.</p>"
 		+ button);
 
 	$('.js-main-container').html(bye);
 
-	displayScore($('.js-main-container'), state.questions.length, state.questions[obj.currQuestion].questionID);
+	displayScore($('.js-main-container'), state.questions.length, obj.corrAnswersTotal);
 	$('.js-current-ticker, .js-score').addClass('hidden');
 }
 
