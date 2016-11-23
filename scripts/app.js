@@ -141,7 +141,7 @@ function displayQuestion(question, questionTemplate, label) {
 //Template display functions
 
 
-function renderFinalTemplate(obj, corrAnswersTotal) {
+function renderFinalTemplate(obj) {
 	var page = state.pages[obj.currentState];
 	var button = displayButton(obj);
 
@@ -154,7 +154,7 @@ function renderFinalTemplate(obj, corrAnswersTotal) {
 	$('.js-current-ticker, .js-score').addClass('hidden');
 }
 
-function renderResultTemplate(obj, corrAnswersTotal) {
+function renderResultTemplate(obj) {
 	var page = state.pages[obj.currentState];
 	var button = displayButton(obj);
 	var answer = getAnswerFeedback(obj);
@@ -167,18 +167,18 @@ function renderResultTemplate(obj, corrAnswersTotal) {
 	$('.js-main-container').html(result);
 
 	displayScore($('.js-current-ticker'), state.questions.length, state.questions[obj.currQuestion].questionID);
-	displayScore($('.js-main-container'), state.questions.length, corrAnswersTotal);
+	displayScore($('.js-main-container'), state.questions.length, obj.corrAnswersTotal);
 	$('.js-score').addClass('hidden');
 }
 
-function renderQuestionTemplate(obj, corrAnswersTotal) {
+function renderQuestionTemplate(obj) {
 	var question = getQuestion(obj);
 	var questionDisplay = displayQuestion(question, questionTemplate, '#label');
 
 	$('.js-main-container').html(questionDisplay);
 
 	displayAnswers(obj);
-	displayScore('.js-score', obj.currQuestion - corrAnswersTotal, corrAnswersTotal);
+	displayScore('.js-score', obj.currQuestion - obj.corrAnswersTotal, obj.corrAnswersTotal);
 	displayScore('.js-current-ticker', state.questions.length, state.questions[obj.currQuestion].questionID);
 }
 
@@ -193,30 +193,30 @@ function renderIndexView(obj) {
 	$('.js-main-container').html(welcome);
 }
 
-function renderState(obj, corrAnswersTotal) {
+function renderState(obj) {
 	if(obj.currentState === 'index') {
 		renderIndexView(obj);
 	} else if (obj.currentState === 'questions') {
-		renderQuestionTemplate(obj, corrAnswersTotal);
+		renderQuestionTemplate(obj);
 		console.log("rendered question template");
 	} else if (obj.currentState === 'result') {
-		renderResultTemplate(obj, corrAnswersTotal); 
+		renderResultTemplate(obj); 
 	} else if (obj.currentState === 'final') {
-		renderFinalTemplate(obj, corrAnswersTotal);
+		renderFinalTemplate(obj);
 	}
 }
 
 
 //LOGIC FUNCTIONS
 
-function processResult(userAnswer, obj, corrAnswersTotal) {
+function processResult(userAnswer, obj) {
 	var correctAnswer = getAnswerID(obj);
 
 	if (parseInt(userAnswer) === parseInt(correctAnswer)) {
-		corrAnswersTotal +=1;
+		obj.corrAnswersTotal +=1;
 	}
 
-	return corrAnswersTotal;
+	return obj;
 }
 
 function checkState(obj) {
@@ -235,6 +235,7 @@ function checkState(obj) {
 		} else {
 			obj.currentState = "index";
 			obj.currQuestion = 0;
+			obj.corrAnswersTotal = 0;
 			return obj;
 		}
 }
@@ -244,15 +245,13 @@ function checkState(obj) {
 
 
 function handleButtonClick(obj) {
-	var corrAnswersTotal = 0;
 
 	$('.js-main-container').on('click', '.js-submit-btn', function(e) {
 		e.preventDefault();
 
 		var userChoice = $('.js-input-group input[name="answer"]:radio:checked').val();
-		var newTotal = processResult(userChoice, obj, corrAnswersTotal);
-
-		corrAnswersTotal = newTotal;
+		obj = processResult(userChoice, obj);
+		console.log(obj);
 
 		var newCurrentState = checkState(obj);
 
@@ -261,14 +260,15 @@ function handleButtonClick(obj) {
 		console.log("click button current state is " + obj.currentState);
 		console.log("click button current question is " + obj.currQuestion);
 
-		renderState(obj, corrAnswersTotal);
+		renderState(obj);
 	});
 }
 
 function handleInitialState() { 
 	var obj = { 
 		currentState : 'index',
-		currQuestion : 0 
+		currQuestion : 0,
+		corrAnswersTotal : 0 
 	};
 
 	renderState(obj);
