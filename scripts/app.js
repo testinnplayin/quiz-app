@@ -227,6 +227,15 @@ function checkState(obj) {
 			obj.currentState = "questions";
 			return obj;
 		} else if (obj.currentState === "questions") {
+			var userChoice = $('.js-input-group input[name="answer"]:radio:checked').val();
+			console.log(userChoice);
+			obj = processResult(userChoice, obj);
+			console.log(obj);
+			if (userChoice === undefined) {
+				alert("Hey you forgot to choose an answer!");
+				obj.currentState = "questions";
+				return obj;
+			}
 			obj.currentState = "result";
 			return obj;
 		} else if (obj.currentState === "result" && obj.currQuestion === 4) {
@@ -241,17 +250,17 @@ function checkState(obj) {
 }
 
 
-//EVENT HANDLERS
 
+//EVENT HANDLERS
 
 function handleButtonClick(obj) {
 
 	$('.js-main-container').on('click', '.js-submit-btn', function(e) {
 		e.preventDefault();
 
-		var userChoice = $('.js-input-group input[name="answer"]:radio:checked').val();
-		obj = processResult(userChoice, obj);
-		console.log(obj);
+		
+
+		
 
 		var newCurrentState = checkState(obj);
 
