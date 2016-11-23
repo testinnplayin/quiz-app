@@ -220,9 +220,6 @@ function processResult(userAnswer, obj, corrAnswersTotal) {
 }
 
 function checkState(obj) {
-
-
-
 		if ((obj.currentState === "index") || (obj.currentState === "result" && obj.currQuestion < 4)) {
 			if (obj.currentState === "result") {
 				obj.currQuestion += 1;
@@ -240,8 +237,6 @@ function checkState(obj) {
 			obj.currQuestion = 0;
 			return obj;
 		}
-
-	
 }
 
 
@@ -267,7 +262,6 @@ function handleButtonClick(obj) {
 		console.log("click button current question is " + obj.currQuestion);
 
 		renderState(obj, corrAnswersTotal);
-		
 	});
 }
 
