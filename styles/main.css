@@ -1,0 +1,66 @@
+html {
+	box-sizing: border-box;
+}
+
+*,
+*::after,
+*::before {
+	box-sizing: inherit;
+}
+
+.current-question-ticker,
+.score,
+p, 
+h1 {
+	padding-top: 30px;
+	text-align: center;
+	display: block;
+}
+
+fieldset {
+	border: 0;
+}
+
+.main-container {
+	width: 70%;
+	margin: 30px auto;
+	border: 1px solid black;
+	height: 500px;
+}
+
+.question-form {
+	padding: 50px 0;
+}
+
+.question-field {
+	padding: 30px 50px;
+	line-height: 20px;
+}
+
+.submit-btn {
+	margin: 40px 0;
+	margin-left: 620px;
+	padding: 10px;
+	display: block;
+}
+
+.submit-btn:hover {
+	background-color: red;
+}
+
+.submit-btn:active {
+	background-color: red;
+	padding: 12px;
+}
+
+#label {
+	font-size: 20px;
+}
+
+.input-group {
+	margin-top: 20px;
+}
+
+.hidden {
+	display: none;
+}
